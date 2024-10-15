@@ -1,6 +1,7 @@
 import React from 'react';
 import Navbar from '../components/Navbar';
 import SideBar from '../components/SideBar';
+import AppliedComponent from '../components/AppliedComponent';
 
 const AppliedPage = () => {
   return (
@@ -12,13 +13,10 @@ const AppliedPage = () => {
           <SideBar />
         </div>
 
-        <div className="w-[55vw] p-4">
-          Applied
+        <div className="w-[80vw] p-4">
+          <AppliedComponent/>
         </div>
-
-        <div className="w-[25vw] p-4 border-l border-gray-200">
-          Info
-        </div>
+ 
       </div>
     </div>
   );

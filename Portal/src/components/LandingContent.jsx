@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom';
 
 const LandingContent = () => {
     return (
-        <div className="px-4"> {/* Added padding to the left and right */}
+        <div className="px-4"> 
             <div className="flex flex-col md:flex-row m-4 md:m-16">
-                <div className="Moto w-full md:w-1/2"> {/* Use 1/2 for better responsiveness */}
+                <div className="Moto w-full md:w-1/2">
                     <div className="pt-8 md:pt-16 pl-4 md:pl-16 text-2xl md:text-4xl">
                         <div className="font-bold">Get and Share </div>
                         <div className="text-blue-500 font-bold">quality Internships & Jobs</div>
