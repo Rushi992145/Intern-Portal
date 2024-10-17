@@ -1,6 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+// Import the image from the assets folder
+import heroImage from '../assets/hero_img.png';  // Ensure this path is correct based on where you store the image
+
 const LandingContent = () => {
     return (
         <div className="px-4"> {/* Added padding to the left and right */}
@@ -22,9 +25,14 @@ const LandingContent = () => {
                         </button>
                     </div>
                 </div>
-                <div className="w-full md:w-1/2 mt-8 md:mt-0 flex justify-center">
+                <div className="w-full md:w-1/2 mt-8 md:mt-0 flex justify-center items-center">
                     <div className="flex justify-center items-center h-full">
-                        <p className="text-center">Kahitai takaycha hita</p>
+                        {/* Enhanced image with shadow and border */}
+                        <img 
+                            src={heroImage} 
+                            alt="Landscape" 
+                            className="w-full h-full object-cover rounded-lg shadow-dark-blue "
+                        />
                     </div>
                 </div>
             </div>

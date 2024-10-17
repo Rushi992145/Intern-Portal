@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* Custom Shadow for Profile Image */
+.custom-shadow {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); /* Adjust the RGBA value as needed */
+  }
+  
+  /* Remove Blue Border */
+  .border-none {
+    border: none; /* Removes border */
+  }
+  

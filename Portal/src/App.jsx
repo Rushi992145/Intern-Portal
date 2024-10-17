@@ -5,6 +5,7 @@ import InternshipPage from "./page/InternshipPage";
 import FullTimeJobsPage from "./page/FullTimeJobsPage";
 import AppliedPage from "./page/AppliedPage";
 import PostTemplate from "./components/PostTemplate";
+import ProfilePage from "./page/ProfilePage";
 
 function App() {
 
@@ -18,6 +19,8 @@ function App() {
           <Route path="/internships" element={<InternshipPage/>}/>
           <Route path="/fulltime-jobs" element={<FullTimeJobsPage/>}/>
           <Route path="/applied" element={<AppliedPage/>}/>
+          <Route path="/profile" element={ <ProfilePage/> }/>
+          
         </Routes>
       </BrowserRouter>
     </div>
