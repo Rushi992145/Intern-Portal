@@ -4,8 +4,12 @@ import HomePage from "./page/HomePage";
 import InternshipPage from "./page/InternshipPage";
 import FullTimeJobsPage from "./page/FullTimeJobsPage";
 import AppliedPage from "./page/AppliedPage";
+<<<<<<< HEAD
 import PostTemplate from "./components/PostTemplate";
 import ProfilePage from "./page/ProfilePage";
+=======
+import AppliedComponent from "./components/AppliedComponent";
+>>>>>>> f5434158577d84809cca341d487436cfd8bb5ab7
 
 function App() {
 
@@ -15,7 +19,7 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage/>} />
           <Route path="/home" element={<HomePage/>}/>
-          <Route path="/test" element={<PostTemplate/>}/>
+          <Route path="/test" element={<AppliedComponent/>}/>
           <Route path="/internships" element={<InternshipPage/>}/>
           <Route path="/fulltime-jobs" element={<FullTimeJobsPage/>}/>
           <Route path="/applied" element={<AppliedPage/>}/>
