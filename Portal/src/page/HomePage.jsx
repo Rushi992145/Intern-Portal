@@ -3,17 +3,13 @@ import Navbar from '../components/Navbar';
 import SideBar from '../components/SideBar';
 
 const HomePage = () => {
-<<<<<<< HEAD
-  return (
-    
-    <div className='text-black h-screen flex flex-col'>
+  // return (
+  //   <div className='text-black h-screen flex flex-col'>
 
-      <Navbar />
-
-      <div className='flex flex-1'>
-=======
+  //     <Navbar />
+  //     <div className='flex flex-1'>
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
->>>>>>> f5434158577d84809cca341d487436cfd8bb5ab7
+
 
   return (
     <div className="text-black h-screen flex flex-col ">

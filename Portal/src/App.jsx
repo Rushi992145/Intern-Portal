@@ -4,12 +4,9 @@ import HomePage from "./page/HomePage";
 import InternshipPage from "./page/InternshipPage";
 import FullTimeJobsPage from "./page/FullTimeJobsPage";
 import AppliedPage from "./page/AppliedPage";
-<<<<<<< HEAD
-import PostTemplate from "./components/PostTemplate";
+// import PostTemplate from "./components/PostTemplate";
 import ProfilePage from "./page/ProfilePage";
-=======
 import AppliedComponent from "./components/AppliedComponent";
->>>>>>> f5434158577d84809cca341d487436cfd8bb5ab7
 
 function App() {
 
