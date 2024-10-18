@@ -15,15 +15,15 @@ const createPost = asyncHandler(async (req, res) => {
     if (!role || !companyName || !description || !applicationLink) {
         throw new ApiError(400, "All required fields must be provided.");
     }
-    console.log(req.body);
-    
+    const owner = req.user._id
 
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(owner);
     if (!user) {
         throw new ApiError(404, "User not found.");
     }
 
     const post = new Post({
+        owner,
         role,
         companyName,
         description,
