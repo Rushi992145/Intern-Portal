@@ -7,14 +7,19 @@ import AppliedPage from "./page/AppliedPage";
 // import PostTemplate from "./components/PostTemplate";
 import ProfilePage from "./page/ProfilePage";
 import AppliedComponent from "./components/AppliedComponent";
+import { Provider } from 'react-redux';
+import store from './redux/store';
+import SignInPage from "./page/SignInPage";
 
 function App() {
 
   return (
-    <div className="App">
+    <Provider store={store}>
+
         <BrowserRouter>
         <Routes>
           <Route path="/" element={<LandingPage/>} />
+          <Route path="/signin" element={<SignInPage/>} />
           <Route path="/home" element={<HomePage/>}/>
           <Route path="/test" element={<AppliedComponent/>}/>
           <Route path="/internships" element={<InternshipPage/>}/>
@@ -24,7 +29,7 @@ function App() {
           
         </Routes>
       </BrowserRouter>
-    </div>
+    </Provider>
   )
 }
 
