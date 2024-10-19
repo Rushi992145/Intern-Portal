@@ -1,7 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2"
 
-
 const postSchema = new Schema(
     {
         owner : {
@@ -23,9 +22,10 @@ const postSchema = new Schema(
         impression: {
             type: Number,
         },
-        requiredSkills: [{
-            skill: String,
-        }],
+        requiredSkills: {
+            type: [String],
+            required: true
+        },
         applicationLink : {
             type:String,
             required: true

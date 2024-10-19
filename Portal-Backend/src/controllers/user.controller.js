@@ -239,8 +239,6 @@ const updateAccountDetails = asyncHandler(async(req,res) => {
 
 })
 
-
-
 const updateUserProfileImage = asyncHandler(async(res,req) => {
     const profileImageLocalPath = req.file?.path
     if(!profileImageLocalPath) {
