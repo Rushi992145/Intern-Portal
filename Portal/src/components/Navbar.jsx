@@ -1,5 +1,7 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React from 'react';
+import { Link } from 'react-router-dom';
+import logo from '../assets/logo.png';
+import profileImage from '../assets/profile.png';
 
 const Navbar = () => {
   return (
@@ -10,7 +12,7 @@ const Navbar = () => {
         <Link to='/profile'>Profile</Link>
         </div>
     </div>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;

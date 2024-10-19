@@ -4,6 +4,8 @@ import HomePage from "./page/HomePage";
 import InternshipPage from "./page/InternshipPage";
 import FullTimeJobsPage from "./page/FullTimeJobsPage";
 import AppliedPage from "./page/AppliedPage";
+// import PostTemplate from "./components/PostTemplate";
+import ProfilePage from "./page/ProfilePage";
 import AppliedComponent from "./components/AppliedComponent";
 import { Provider } from 'react-redux';
 import store from './redux/store';
@@ -23,6 +25,8 @@ function App() {
           <Route path="/internships" element={<InternshipPage/>}/>
           <Route path="/fulltime-jobs" element={<FullTimeJobsPage/>}/>
           <Route path="/applied" element={<AppliedPage/>}/>
+          <Route path="/profile" element={ <ProfilePage/> }/>
+          
         </Routes>
       </BrowserRouter>
     </Provider>
