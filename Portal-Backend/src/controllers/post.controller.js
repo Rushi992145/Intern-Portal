@@ -79,4 +79,58 @@ const getAllPosts = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, "Posts retrieved successfully", posts));
 });
 
-export { createPost, getAllPosts };
+const getPostAddedByLoggedUser = asyncHandler(async (req, res) => {
+    const owner = req.user._id;
+
+    if (!owner) {
+        throw new ApiError(404, "User Not Found");
+    }
+
+    try {
+        const posts = await Post.find({ owner });
+
+        if (!posts || posts.length === 0) {
+            return res.status(404).json(new ApiResponse(404, {}, "No posts found for this user"));
+        }
+
+        res.status(200).json(new ApiResponse(200, posts, "Posts retrieved successfully"));
+    } catch (error) {
+        throw new ApiError(500, "Something went wrong while fetching posts");
+    }
+});
+
+const updatePost = asyncHandler(async (req, res) => {
+    const { postId } = req.params;
+    const owner = req.user._id;
+
+    if (!mongoose.Types.ObjectId.isValid(postId)) {
+        throw new ApiError(400, "Invalid post ID");
+    }
+
+    const post = await Post.findById(postId);
+    
+    if (!post) {
+        throw new ApiError(404, "Post not found");
+    }
+
+    if (post.owner.toString() !== owner.toString()) {
+        throw new ApiError(403, "You do not have permission to update this post");
+    }
+
+
+    const { role, companyName, description, applicationLink, requiredSkills } = req.body;
+
+
+    if (role) post.role = role;
+    if (companyName) post.companyName = companyName;
+    if (description) post.description = description;
+    if (applicationLink) post.applicationLink = applicationLink;
+    if (requiredSkills) post.requiredSkills = requiredSkills;
+
+    const updatedPost = await post.save();
+
+    res.status(200).json(new ApiResponse(200, updatedPost, "Post updated successfully"));
+});
+
+
+export { createPost, getAllPosts , getPostAddedByLoggedUser,updatePost};

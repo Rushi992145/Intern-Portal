@@ -293,6 +293,50 @@ const addQualification = asyncHandler(async (req, res) => {
     }
 });
 
+const getMyAppliedJobs = asyncHandler(async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).populate('myApplied', '-description -impression').select('-password -refreshToken');
+
+        if (!user) {
+            throw new ApiError(404, 'User not found');
+        }
+
+        return res.status(200).json(new ApiResponse(200, user.myApplied, 'Applied jobs fetched successfully'));
+    } catch (error) {
+        return res.status(500).json({ message: 'An error occurred while fetching applied jobs', error });
+    }
+});
+
+const addMyAppliedJobs = asyncHandler(async (req, res) => {
+    const { jobId } = req.body;
+
+    if (!jobId) {
+        throw new ApiError(400, 'Job ID is required');
+    }
+
+    try {
+        const user = await User.findById(req.user._id);
+
+        if (!user) {
+            throw new ApiError(404, 'User not found');
+        }
+
+        // Check if the job is already in the applied list
+        if (user.myApplied.includes(jobId)) {
+            throw new ApiError(400, 'Job already applied');
+        }
+
+        user.myApplied.push(jobId);
+
+        await user.save();
+
+        return res.status(200).json(new ApiResponse(200, {}, 'Job added to applied list successfully'));
+    } catch (error) {
+        return res.status(500).json({ message: 'An error occurred while adding the job to the applied list', error });
+    }
+});
+
+
 
 
 export {
@@ -304,5 +348,7 @@ export {
     changeCurrentPassword,
     updateAccountDetails,
     updateUserProfileImage,
-    addQualification
+    addQualification,
+    getMyAppliedJobs,
+    addMyAppliedJobs
 }

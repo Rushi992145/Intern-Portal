@@ -8,7 +8,9 @@ import {
     getCurrentUser, 
     updateAccountDetails, 
     updateUserProfileImage,
-    addQualification
+    addQualification,
+    getMyAppliedJobs,
+    addMyAppliedJobs
 } from "../controllers/user.controller.js";
 import {upload} from "../middlewares/multer.middleware.js"
 import { varifyJWT } from "../middlewares/auth.middleware.js";
@@ -43,5 +45,9 @@ router.route("/update-account").patch(varifyJWT,updateAccountDetails)
 router.route("/profile-image").patch(varifyJWT,upload.single("profileImage"),updateUserProfileImage)
 
 router.route("/add-qualification").post(varifyJWT,addQualification)
+
+router.route("/get-my-applied").get(varifyJWT,getMyAppliedJobs)
+
+router.route("/apply-job").post(varifyJWT,addMyAppliedJobs)
 
 export default router;

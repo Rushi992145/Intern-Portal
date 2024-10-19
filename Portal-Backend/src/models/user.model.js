@@ -57,6 +57,12 @@ const userSchema = new Schema(
             type:Date,
             required:true
         },
+        myApplied:[
+            {
+                type : Schema.Types.ObjectId,
+                ref : "Post"
+            }
+        ],
         qualifications:[qualification],
     },
     {timestamps:true}
