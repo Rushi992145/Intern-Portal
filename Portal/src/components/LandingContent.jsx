@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 const LandingContent = () => {
     return (
-        <div className="px-4"> 
+        <div className="px-4">
             <div className="flex flex-col md:flex-row m-4 md:m-16">
                 <div className="Moto w-full md:w-1/2">
                     <div className="pt-8 md:pt-16 pl-4 md:pl-16 text-2xl md:text-4xl">
@@ -14,12 +14,14 @@ const LandingContent = () => {
                         The #1 way college students & early graduates get Internships, Jobs
                     </div>
                     <div className="getstarted pt-6 md:pt-12 pl-4 md:pl-16">
-                        <button className="bg-blue-500 text-white p-3 border-none rounded-3xl flex justify-center items-center">
-                            Get Started
-                            <span className="material-symbols-outlined">
-                                chevron_right
-                            </span>
-                        </button>
+                        <Link to="/signin"> 
+                            <button className="bg-blue-500 text-white p-3 border-none rounded-3xl flex justify-center items-center">
+                                Get Started
+                                <span className="material-symbols-outlined">
+                                    chevron_right
+                                </span>
+                            </button>
+                        </Link>
                     </div>
                 </div>
                 <div className="w-full md:w-1/2 mt-8 md:mt-0 flex justify-center">
@@ -80,7 +82,7 @@ const LandingContent = () => {
             </div>
 
             <div className="getstarted flex justify-center items-center pt-6 md:pt-12">
-                <Link to="/home">
+                <Link to="/signin">
                     <button className="bg-blue-500 w-48 text-white p-3 border-none rounded-3xl flex justify-center items-center">
                         Get Started
                     </button>
