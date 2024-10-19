@@ -37,11 +37,24 @@ const createPost = asyncHandler(async (req, res) => {
 });
 
 const getAllPosts = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, search, companyName, role } = req.query;
+    const { page = 1, limit = 10 } = req.query;
+
+    const options = {
+        page: parseInt(page, 10),
+        limit: parseInt(limit, 10),
+    };
+
+    const posts = await Post.aggregatePaginate(Post.aggregate(), options);
+
+    res.status(200).json(new ApiResponse(200, "Posts retrieved successfully", posts));
+});
+
+const getAllPostsbyFilter = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 10, search, companyName, role, userId } = req.query;
 
     const aggregationPipeline = [];
 
-    // Filter by companyName or role if provided
+    // Filter by companyName if provided
     if (companyName) {
         aggregationPipeline.push({
             $match: {
@@ -50,6 +63,7 @@ const getAllPosts = asyncHandler(async (req, res) => {
         });
     }
 
+    // Filter by role if provided
     if (role) {
         aggregationPipeline.push({
             $match: {
@@ -58,12 +72,23 @@ const getAllPosts = asyncHandler(async (req, res) => {
         });
     }
 
+    // Filter by owner if userId is provided
+    if (userId) {
+        aggregationPipeline.push({
+            $match: {
+                owner: new mongoose.Types.ObjectId(userId),
+            },
+        });
+    }
+
+    // Apply general search if provided
     if (search) {
         aggregationPipeline.push({
             $match: {
                 $or: [
                     { description: { $regex: search, $options: "i" } },
                     { role: { $regex: search, $options: "i" } },
+                    { companyName: { $regex: search, $options: "i" } },
                 ],
             },
         });
@@ -133,4 +158,4 @@ const updatePost = asyncHandler(async (req, res) => {
 });
 
 
-export { createPost, getAllPosts , getPostAddedByLoggedUser,updatePost};
+export { createPost, getAllPosts , getAllPostsbyFilter, getPostAddedByLoggedUser,updatePost};
