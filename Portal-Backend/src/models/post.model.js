@@ -36,6 +36,9 @@ const postSchema = new Schema(
         },
         salary : {
             type:Number
+        },
+        duration : {
+            type : String
         }
     },{timestamps:true}
 )

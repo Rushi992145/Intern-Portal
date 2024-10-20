@@ -10,7 +10,7 @@ import mongoose from "mongoose";
 
 
 const createPost = asyncHandler(async (req, res) => {
-    const { role, companyName, description, applicationLink, requiredSkills ,opportunityType, salary} = req.body;
+    const { role, companyName, description, applicationLink, requiredSkills ,opportunityType, salary , duration} = req.body;
 
     if (!role || !companyName || !description || !applicationLink) {
         throw new ApiError(400, "All required fields must be provided.");
@@ -30,7 +30,8 @@ const createPost = asyncHandler(async (req, res) => {
         applicationLink,
         requiredSkills,
         opportunityType,
-        salary
+        salary,
+        duration
     });
 
     await post.save();
@@ -156,7 +157,7 @@ const updatePost = asyncHandler(async (req, res) => {
     }
 
 
-    const { role, companyName, description, applicationLink, requiredSkills ,salary ,opportunityType} = req.body;
+    const { role, companyName, description, applicationLink, requiredSkills ,salary ,opportunityType,duration} = req.body;
 
 
     if (role) post.role = role;
@@ -166,6 +167,7 @@ const updatePost = asyncHandler(async (req, res) => {
     if (requiredSkills) post.requiredSkills = requiredSkills;
     if(opportunityType) post.opportunityType = opportunityType;
     if(salary) post.salary = salary;
+    if(duration) post.duration = duration;
 
     const updatedPost = await post.save();
 
