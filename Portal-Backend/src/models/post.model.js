@@ -29,8 +29,15 @@ const postSchema = new Schema(
         applicationLink : {
             type:String,
             required: true
+        },
+        opportunityType :{
+            type:String,
+            required:true
+        },
+        salary : {
+            type:Number
         }
-    }
+    },{timestamps:true}
 )
 
 postSchema.plugin(mongooseAggregatePaginate)
