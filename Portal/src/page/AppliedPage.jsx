@@ -6,7 +6,6 @@ import AppliedComponent from '../components/AppliedComponent';
 const AppliedPage = () => {
   return (
     <div className='text-black h-screen flex flex-col'>
-      <Navbar />
       <div className='flex flex-1'>
 
         <div className="w-[20vw] border-r border-gray-200">

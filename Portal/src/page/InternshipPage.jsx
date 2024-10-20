@@ -12,7 +12,6 @@ const IntershipPage = () => {
     };
     return (
         <div className='text-black h-screen flex flex-col'>
-            <Navbar />
             <div className='flex flex-1 overflow-hidden'>
                 {!isSidebarOpen && (
                     <div className="md:hidden p-10">

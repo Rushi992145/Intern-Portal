@@ -29,7 +29,7 @@ const registerUser = asyncHandler(async(req,res) => {
     // })    
 
     const {fullname,email,username,password,mobileNumber,birthDate} = req.body;
-    console.log("email:",email);
+    console.log(req.body);
 
     if(
         [fullname,email,username,password,mobileNumber,birthDate].some((field)=> field?.trim()==="")

@@ -6,7 +6,6 @@ import LandingContent from '../components/LandingContent'
 const LandingPage = () => {
   return (
     <div className=''>
-      <Navbar/>
       <LandingContent/>
       <Footer/>
     </div>
