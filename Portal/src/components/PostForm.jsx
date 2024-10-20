@@ -6,7 +6,7 @@ import {
     addSkill,
     updateSkill,
     resetForm,
-} from '../redux/postSlice.jsx';
+} from '../redux/postSlice.js';
 
 const PostForm = () => {
     const dispatch = useDispatch();

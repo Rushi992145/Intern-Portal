@@ -10,7 +10,6 @@ const HomePage = () => {
 
   return (
     <div className="text-black h-screen flex flex-col">
-      <Navbar />
 
       <div className="flex flex-1 overflow-hidden relative ">
         

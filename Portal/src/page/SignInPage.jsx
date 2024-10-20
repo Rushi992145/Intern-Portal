@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginUser, signupUser } from '../redux/authSlice';
+import { useNavigate } from 'react-router-dom'; 
 
 const SignInPage = () => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate(); 
+    const { loading, error } = useSelector((state) => state.auth); 
+
     const [isLogin, setIsLogin] = useState(true);
     const [formData, setFormData] = useState({
         username: '',
         email: '',
-        fullName: '',
+        fullname: '',
         mobileNumber: '',
         password: '',
         birthDate: '',
@@ -24,7 +31,7 @@ const SignInPage = () => {
         setFormData({
             username: '',
             email: '',
-            fullName: '',
+            fullname: '',
             mobileNumber: '',
             password: '',
             birthDate: '',
@@ -33,19 +40,44 @@ const SignInPage = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log(formData);
+
+        if (isLogin) {
+            dispatch(loginUser({
+                username: formData.username,
+                password: formData.password,
+            })).then((response) => {
+                if (response.meta.requestStatus === 'fulfilled') {
+                    navigate('/home');
+                }
+            });
+        } else {
+            const formDataWithFile = new FormData();
+            formDataWithFile.append('username', formData.username);
+            formDataWithFile.append('email', formData.email);
+            formDataWithFile.append('fullname', formData.fullname);
+            formDataWithFile.append('mobileNumber', formData.mobileNumber);
+            formDataWithFile.append('password', formData.password);
+            formDataWithFile.append('birthDate', formData.birthDate);
+
+            dispatch(signupUser(formDataWithFile)).then((response) => {
+                if (response.meta.requestStatus === 'fulfilled') {
+                    navigate('/home'); 
+                }
+            });
+        }
     };
 
     return (
-        <div className="flex flex-col items-center justify-center h-screen">
-            <h1 className="text-2xl font-bold mb-4">{isLogin ? 'Login' : 'Sign In'}</h1>
+        <div className="flex flex-col items-center justify-center h-[80vh]">
+            <h1 className="text-2xl font-bold mb-4">{isLogin ? 'Login' : 'Sign Up'}</h1>
+
             <form onSubmit={handleSubmit} className="w-80">
                 {!isLogin && (
                     <>
                         <input
                             type="text"
-                            name="fullName"
-                            value={formData.fullName}
+                            name="fullname"
+                            value={formData.fullname}
                             onChange={handleChange}
                             placeholder="Full Name"
                             className="w-full p-2 border border-gray-300 rounded-md mb-4"
@@ -95,15 +127,18 @@ const SignInPage = () => {
                 <button
                     type="submit"
                     className="bg-blue-500 text-white px-4 py-2 rounded-md w-full"
+                    disabled={loading}
                 >
-                    {isLogin ? 'Login' : 'Sign Up'}
+                    {loading ? 'Processing...' : isLogin ? 'Login' : 'Sign Up'}
                 </button>
+
+                {error && <p className="text-red-500 mt-2">{error}</p>}
             </form>
-            <button
-                onClick={handleToggle}
-                className="mt-4 text-blue-500"
-            >
-                {isLogin ? 'Don\'t have an account? Sign Up' : 'Already have an account? Login'}
+
+            <button onClick={handleToggle} className="mt-4 text-blue-500">
+                {isLogin
+                    ? "Don't have an account? Sign Up"
+                    : 'Already have an account? Login'}
             </button>
         </div>
     );
