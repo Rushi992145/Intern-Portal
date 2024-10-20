@@ -10,7 +10,7 @@ import mongoose from "mongoose";
 
 
 const createPost = asyncHandler(async (req, res) => {
-    const { role, companyName, description, applicationLink, requiredSkills } = req.body;
+    const { role, companyName, description, applicationLink, requiredSkills ,opportunityType, salary} = req.body;
 
     if (!role || !companyName || !description || !applicationLink) {
         throw new ApiError(400, "All required fields must be provided.");
@@ -29,6 +29,8 @@ const createPost = asyncHandler(async (req, res) => {
         description,
         applicationLink,
         requiredSkills,
+        opportunityType,
+        salary
     });
 
     await post.save();
@@ -50,7 +52,7 @@ const getAllPosts = asyncHandler(async (req, res) => {
 });
 
 const getAllPostsbyFilter = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, search, companyName, role, userId } = req.query;
+    const { page = 1, limit = 10, search, companyName, role, userId , salary} = req.query;
 
     
 
@@ -62,6 +64,14 @@ const getAllPostsbyFilter = asyncHandler(async (req, res) => {
             $match: {
                 companyName: { $regex: companyName, $options: "i" },
             },
+        });
+    }
+
+    if (salary) {
+        aggregationPipeline.push({
+            $match: {
+                salary: { $gte: salary }
+            }
         });
     }
 
@@ -146,7 +156,7 @@ const updatePost = asyncHandler(async (req, res) => {
     }
 
 
-    const { role, companyName, description, applicationLink, requiredSkills } = req.body;
+    const { role, companyName, description, applicationLink, requiredSkills ,salary ,opportunityType} = req.body;
 
 
     if (role) post.role = role;
@@ -154,11 +164,12 @@ const updatePost = asyncHandler(async (req, res) => {
     if (description) post.description = description;
     if (applicationLink) post.applicationLink = applicationLink;
     if (requiredSkills) post.requiredSkills = requiredSkills;
+    if(opportunityType) post.opportunityType = opportunityType;
+    if(salary) post.salary = salary;
 
     const updatedPost = await post.save();
 
     res.status(200).json(new ApiResponse(200, updatedPost, "Post updated successfully"));
 });
-
 
 export { createPost, getAllPosts , getAllPostsbyFilter, getPostAddedByLoggedUser,updatePost};
