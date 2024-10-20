@@ -50,8 +50,6 @@ const ProfilePage = () => {
           <div className="bg-white p-8 shadow-lg rounded-lg mb-12 border border-gray-200">
             <div className="text-center">
               <h2 className="text-4xl font-bold text-gray-900 animate-fade-in">{user.username}</h2>
-              <p className="text-gray-500 mt-2">Product Designer</p>
-              <p className="text-gray-500">Los Angeles, California, USA</p>
             </div>
           </div>
 
@@ -62,13 +60,13 @@ const ProfilePage = () => {
               <button className="text-blue-500 hover:underline text-sm">Edit</button>
             </div>
             <div className="grid grid-cols-2 gap-6 text-gray-600">
-              <UserName user={user}/>
+              <UserName user={user} />
               <div>
                 <p className="font-semibold">Email Address</p>
                 <p>{user.email}</p>
               </div>
               <div>
-                <p className="font-semibold">Phone</p>  
+                <p className="font-semibold">Phone</p>
                 <p>{user.mobileNumber}</p>
               </div>
             </div>
@@ -77,7 +75,8 @@ const ProfilePage = () => {
           {/* Skill Section */}
           <div className="bg-white p-8 shadow-md rounded-lg mb-12 border border-gray-200">
             <div className="flex justify-between items-center mb-4">
-              <h4 className="text-xl font-semibold text-gray-700">Skills</h4>
+              <h4 className="text-xl font-semibold text-gray-700">Qualification</h4>
+              <button className="text-blue-500 hover:underline text-sm">Edit</button>
             </div>
             <div className="grid grid-cols-2 gap-6 text-gray-600">
               <div>
@@ -103,24 +102,6 @@ const ProfilePage = () => {
                 <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
                   <div className="skill-bar-fill bg-yellow-500 h-4 rounded-full" data-value="80%"></div>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Address Section */}
-          <div className="bg-white p-8 shadow-md rounded-lg border border-gray-200">
-            <div className="flex justify-between items-center mb-4">
-              <h4 className="text-xl font-semibold text-gray-700">Address</h4>
-              <button className="text-blue-500 hover:underline text-sm">Edit</button>
-            </div>
-            <div className="grid grid-cols-2 gap-6 text-gray-600">
-              <div>
-                <p className="font-semibold">Country</p>
-                <p>United States of America</p>
-              </div>
-              <div>
-                <p className="font-semibold">City/State</p>
-                <p>California, USA</p>
               </div>
             </div>
           </div>

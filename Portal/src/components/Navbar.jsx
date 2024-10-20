@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import profileImage from '../assets/profile.png';
@@ -17,7 +17,7 @@ const Navbar = () => {
             navigate('/');
         });
     };
-
+    
     return (
         <div className='flex justify-between items-center p-5 border-b border-gray-200'>
             <div className="logo text-xl font-bold">
