@@ -52,6 +52,8 @@ const getAllPosts = asyncHandler(async (req, res) => {
 const getAllPostsbyFilter = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, search, companyName, role, userId } = req.query;
 
+    
+
     const aggregationPipeline = [];
 
     // Filter by companyName if provided
@@ -125,7 +127,8 @@ const getPostAddedByLoggedUser = asyncHandler(async (req, res) => {
 });
 
 const updatePost = asyncHandler(async (req, res) => {
-    const { postId } = req.params;
+    const { postId } = req.query;
+    console.log(req)
     const owner = req.user._id;
 
     if (!mongoose.Types.ObjectId.isValid(postId)) {
