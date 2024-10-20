@@ -9,8 +9,6 @@ const Navbar = () => {
     const navigate = useNavigate();
 
     const { user, token } = useSelector((state) => state.auth); 
-    console.log("logged info",user, token); 
-
 
     const handleLogout = () => {
         dispatch(logoutUser()).then(() => {

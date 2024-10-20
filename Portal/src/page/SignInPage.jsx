@@ -132,7 +132,7 @@ const SignInPage = () => {
                     {loading ? 'Processing...' : isLogin ? 'Login' : 'Sign Up'}
                 </button>
 
-                {error && <p className="text-red-500 mt-2">{error}</p>}
+                {error && <p  className="text-red-500 mt-2 text-center">{error}</p>}
             </form>
 
             <button onClick={handleToggle} className="mt-4 text-blue-500">

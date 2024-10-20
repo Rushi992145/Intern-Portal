@@ -17,13 +17,13 @@ export const signupUser = createAsyncThunk(
                 console.log("localStorage set");
                 
             }
-            console.log("localStorage set",response.data.data.user);
+            console.log("localStorage set",response.data.data.user);    
 
             console.log('Signup Response:', response.data);
             return response.data;
         } catch (error) {
             console.error('Signup Error:', error.response?.data);
-            return rejectWithValue(error.response?.data || 'Something went wrong');
+            return rejectWithValue('User already exist');
         }
     }
 );
@@ -39,12 +39,10 @@ export const loginUser = createAsyncThunk(
                 localStorage.setItem('user', JSON.stringify(response.data.data.user));
                 console.log("localStorage set");
             }
-
-
             console.log('Login Response:', response);
-            return response.data;
+            return response.data;   
         } catch (error) {
-            return rejectWithValue(error.response?.data || 'Invalid credentials');
+            return rejectWithValue('Invalid credentials');
         }
     }
 );
