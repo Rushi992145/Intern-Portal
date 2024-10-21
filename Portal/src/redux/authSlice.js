@@ -14,10 +14,10 @@ export const signupUser = createAsyncThunk(
             if (response.data.data.accessToken && response.data.data.user) {
                 localStorage.setItem('accessToken', response.data.data.accessToken);
                 localStorage.setItem('user', JSON.stringify(response.data.data.user));
-                console.log("localStorage set");
+                console.log("localStorage set",response);
                 
             }
-            console.log("localStorage set",response.data.data.user);    
+            // console.log("localStorage set",response.data.data.accessToken);    
 
             console.log('Signup Response:', response.data);
             return response.data;
@@ -58,6 +58,30 @@ export const logoutUser = createAsyncThunk('auth/logout', async (_, { rejectWith
     }
 });
 
+export const updateUser = createAsyncThunk(
+    'auth/updateUser',
+    async (updatedUserData, { rejectWithValue }) => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            const response = await axios.patch('http://localhost:9000/api/v2/users/update', updatedUserData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            // Update localStorage if necessary
+            if (response.data.data.user) {
+                localStorage.setItem('user', JSON.stringify(response.data.data.user));
+            }
+
+            return response.data.data.user; // Return the updated user data
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || 'Update failed');
+        }
+    }
+);
+
 const authSlice = createSlice({
     name: 'auth',
     initialState: {
@@ -83,6 +107,10 @@ const authSlice = createSlice({
             .addCase(logoutUser.fulfilled, (state) => {
                 state.user = null;
                 state.accessToken = null;
+                state.error = null;
+            })
+            .addCase(updateUser.fulfilled, (state, action) => {
+                state.user = action.payload; 
                 state.error = null;
             })
             .addMatcher(

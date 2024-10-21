@@ -18,11 +18,20 @@ const ProfilePage = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
 
-  // Local state for editable fields
   const [editMode, setEditMode] = useState(false);
+  const [editQualMode, seteditQualMode] = useState(false);
+
+
   const [editedUser, setEditedUser] = useState({
     username: user?.username || "",
     email: user?.email || "",
+    fullname: user?.fullname || "",
+  });
+
+  const [editedQuali, setEditedQuali] = useState({
+    degree: user?.username || "",
+    startYear: user?.email || "",
+    endYear: user?.fullname || "",
   });
 
   const [error, setError] = useState(null);
@@ -33,7 +42,7 @@ const ProfilePage = () => {
       setEditedUser({
         username: user.username,
         email: user.email,
-        mobileNumber: user.mobileNumber,
+        fullname: user.fullname,
       });
     }
     animateSkillBars();
@@ -47,14 +56,43 @@ const ProfilePage = () => {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
-      await dispatch(updateUser(editedUser)); // Dispatch action to update user info
+      const token = localStorage.getItem("accessToken"); // Ensure the token is stored and accessible
+      dispatch(
+        updateUser(editedUser, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+      );
+
       setSuccessMessage("Profile updated successfully!");
-      setError(null); // Clear any previous errors
+      setError(null);
     } catch (error) {
-      setError(error.message); // Capture error
+      setError(error.message); // Capture error message from server response
     }
     setEditMode(false); // Close the edit mode
   };
+
+  const handleQualEditSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem("accessToken"); // Ensure the token is stored and accessible
+      dispatch(
+        updateUser(editedUser, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+      );
+
+      setSuccessMessage("Profile updated successfully!");
+      setError(null);
+    } catch (error) {
+      setError(error.message); // Capture error message from server response
+    }
+    setEditMode(false); // Close the edit mode
+  };
+
 
   return (
     <div className="text-black h-screen flex flex-col bg-gray-50">
@@ -65,20 +103,24 @@ const ProfilePage = () => {
         <div className="w-[80vw] mx-auto py-8 px-4">
           <div
             className="relative h-48 bg-cover bg-center rounded-lg shadow-lg mb-12"
-            style={{ backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${background_img})` }}
+            style={{
+              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${background_img})`,
+            }}
           >
             <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
               <img
                 src={user?.profileImage || profileImage}
                 alt="Profile"
-                className='w-36 h-36 rounded-full'
+                className="w-36 h-36 rounded-full"
               />
             </div>
           </div>
 
           <div className="bg-white p-8 shadow-lg rounded-lg mb-12 border border-gray-200">
             <div className="text-center">
-              <h2 className="text-4xl font-bold text-gray-900 animate-fade-in">{user.username}</h2>
+              <h2 className="text-4xl font-bold text-gray-900 animate-fade-in">
+                {user.username}
+              </h2>
             </div>
           </div>
 
@@ -96,6 +138,14 @@ const ProfilePage = () => {
             {editMode && (
               <form onSubmit={handleEditSubmit} className="mb-4">
                 <div className="flex flex-col">
+                  <input
+                    type="text"
+                    name="fullname"
+                    value={editedUser.fullname}
+                    onChange={handleEditChange}
+                    className="border border-gray-300 p-2 mb-2"
+                    placeholder="Full Name"
+                  />
                   <input
                     type="text"
                     name="username"
@@ -126,7 +176,6 @@ const ProfilePage = () => {
               </form>
             )}
 
-            {/* Display error/success messages */}
             {error && <p className="text-red-500">{error}</p>}
             {successMessage && <p className="text-green-500">{successMessage}</p>}
 
@@ -134,49 +183,79 @@ const ProfilePage = () => {
               <div className="grid grid-cols-2 gap-6 text-gray-600">
                 <UserName user={user} />
                 <div>
-                  <p className="font-semibold">Email Address</p>
-                  <p>{user.email}</p>
+                  <p className="font-semibold">Username</p>
+                  <p>{user.username}</p>
                 </div>
                 <div>
-                  <p className="font-semibold">Phone</p>
-                  <p>{user.mobileNumber}</p>
+                  <p className="font-semibold">Email Address</p>
+                  <p>{user.email}</p>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Skill Section */}
+          
           <div className="bg-white p-8 shadow-md rounded-lg mb-12 border border-gray-200">
             <div className="flex justify-between items-center mb-4">
               <h4 className="text-xl font-semibold text-gray-700">Qualification</h4>
-              <button className="text-blue-500 hover:underline text-sm">Edit</button>
+              <button onClick={()=>seteditQualMode(true)} className="text-blue-500 hover:underline text-sm">Edit</button>
             </div>
+
             <div className="grid grid-cols-2 gap-6 text-gray-600">
-              <div>
-                <p className="font-semibold">UI/UX Design</p>
-                <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
-                  <div className="skill-bar-fill bg-blue-500 h-4 rounded-full" data-value="90%"></div>
+              {user.qualifications.map((qualification, index) => (
+                <div key={index}>
+                  <p className="font-semibold">{qualification}</p>
+                  <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
+                    <div className="skill-bar-fill bg-blue-500 h-4 rounded-full" data-value="90%"></div>
+                  </div>
                 </div>
-              </div>
-              <div>
-                <p className="font-semibold">Adobe XD</p>
-                <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
-                  <div className="skill-bar-fill bg-purple-500 h-4 rounded-full" data-value="85%"></div>
-                </div>
-              </div>
-              <div>
-                <p className="font-semibold">React</p>
-                <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
-                  <div className="skill-bar-fill bg-green-500 h-4 rounded-full" data-value="75%"></div>
-                </div>
-              </div>
-              <div>
-                <p className="font-semibold">JavaScript</p>
-                <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
-                  <div className="skill-bar-fill bg-yellow-500 h-4 rounded-full" data-value="80%"></div>
-                </div>
-              </div>
+              ))}
+
+              
             </div>
+
+            {editQualMode && (
+            <form onSubmit={handleQualEditSubmit} className="mb-4">
+              <div className="flex flex-col">
+                <input
+                  type="text"
+                  name="fullname"
+                  value={editedUser.fullname}
+                  onChange={handleQualEditSubmit}
+                  className="border border-gray-300 p-2 mb-2"
+                  placeholder="Full Name"
+                />
+                <input
+                  type="text"
+                  name="username"
+                  value={editedUser.username}
+                  onChange={handleQualEditSubmit}
+                  className="border border-gray-300 p-2 mb-2"
+                  placeholder="Username"
+                />
+                <input
+                  type="email"
+                  name="email"
+                  value={editedUser.email}
+                  onChange={handleQualEditSubmit}
+                  className="border border-gray-300 p-2 mb-2"
+                  placeholder="Email Address"
+                />
+                <button type="submit" className="bg-blue-500 text-white p-2 rounded">
+                  Save
+                </button>
+                <button
+                  type="button"
+                  className="text-red-500 hover:underline p-2"
+                  onClick={() => seteditQualMode(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
+
+
           </div>
         </div>
       </div>
