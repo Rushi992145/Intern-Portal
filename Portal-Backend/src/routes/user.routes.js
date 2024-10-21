@@ -10,7 +10,8 @@ import {
     updateUserProfileImage,
     addQualification,
     getMyAppliedJobs,
-    addMyAppliedJobs
+    addMyAppliedJobs,
+    removeMyAppliedJob
 } from "../controllers/user.controller.js";
 import {upload} from "../middlewares/multer.middleware.js"
 import { varifyJWT } from "../middlewares/auth.middleware.js";
@@ -49,5 +50,7 @@ router.route("/add-qualification").post(varifyJWT,addQualification)
 router.route("/get-my-applied").get(varifyJWT,getMyAppliedJobs)
 
 router.route("/apply-job").post(varifyJWT,addMyAppliedJobs)
+
+router.route("/remove-my-applied-job").delete(varifyJWT,removeMyAppliedJob)
 
 export default router;

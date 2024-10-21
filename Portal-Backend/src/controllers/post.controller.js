@@ -174,4 +174,48 @@ const updatePost = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, updatedPost, "Post updated successfully"));
 });
 
-export { createPost, getAllPosts , getAllPostsbyFilter, getPostAddedByLoggedUser,updatePost};
+const getAllPostOfInternship = asyncHandler(async(req,res) => {
+    console.log("------------req is received---------------")
+    const { page = 1, limit = 10} = req.query;
+
+    const aggregationPipeline = [];
+
+
+    aggregationPipeline.push({
+        $match: {
+            opportunityType: { $regex: 'internship', $options: "i" },
+        },
+    });
+
+    const options = {
+        page: parseInt(page, 10),
+        limit: parseInt(limit, 10),
+    };
+
+    const posts = await Post.aggregatePaginate(Post.aggregate(aggregationPipeline), options);
+
+    res.status(200).json(new ApiResponse(200, "Posts retrieved successfully", posts));
+})
+
+const getAllPostOfFulltime = asyncHandler(async(req,res) => {
+    const { page = 1, limit = 10} = req.query;
+
+    const aggregationPipeline = [];
+
+    aggregationPipeline.push({
+        $match: {
+            opportunityType: { $regex: 'full', $options: "i" },
+        },
+    });
+
+    const options = {
+        page: parseInt(page, 10),
+        limit: parseInt(limit, 10),
+    };
+
+    const posts = await Post.aggregatePaginate(Post.aggregate(aggregationPipeline), options);
+
+    res.status(200).json(new ApiResponse(200, "Posts retrieved successfully", posts));
+})
+
+export { createPost, getAllPosts , getAllPostsbyFilter, getPostAddedByLoggedUser,updatePost,getAllPostOfInternship,getAllPostOfFulltime};

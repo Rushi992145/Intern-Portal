@@ -1,15 +1,42 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import SideBar from '../components/SideBar';
 import PostTemplate from '../components/PostTemplate';
 import Filter from '../components/Filter';
 import SearchBar from '../components/Searchbar';
+import axios from 'axios';
 
 const IntershipPage = () => {
+    const [posts, setPosts] = useState([]);
+
+    const loadPosts = async () => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            const response = await axios.get('http://localhost:9000/api/v2/post/internship', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            console.log("Post response:", response.data);
+            
+            // Extract the posts from the response data
+            const fetchedPosts = response.data.message.docs;
+            setPosts(fetchedPosts); // Update state with the posts array
+        } catch (error) {
+            console.error("Error fetching posts:", error);
+        }
+    };
+    
+    useEffect(() => {
+        loadPosts();
+    }, []);
+
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
     const handleSearch = (term) => {
         console.log("Searching for:", term);
     };
+
     return (
         <div className='text-black h-screen flex flex-col'>
             <div className='flex flex-1 overflow-hidden'>
@@ -42,16 +69,26 @@ const IntershipPage = () => {
 
                 <div className="flex-1 flex overflow-hidden">
                     <div className="flex-1 p-4 overflow-y-auto">
-                    <SearchBar onSearch={handleSearch} />
-                    
+                        <SearchBar onSearch={handleSearch} />
+
                         <div className="space-y-4">
-                            <PostTemplate />
-                            <PostTemplate />
-                            <PostTemplate />
-                            <PostTemplate />
-                            <PostTemplate />
-                            <PostTemplate />
-                            <PostTemplate />
+                            {posts.map((post, index) => (
+                                <PostTemplate
+                                    key={post._id || index}
+                                    keyProp={post._id || index}
+                                    logoSrc={post.logoSrc || './src/assets/default-logo.png'} // Assuming logoSrc can be part of the post data
+                                    title={post.role || 'Internship Position'}
+                                    companyName={post.companyName || 'Unknown Company'}
+                                    location={post.location || 'Location Not Specified'} // Add this if location is part of the data
+                                    skills={post.requiredSkills || ['Not Specified']}
+                                    stipend={post.salary ? `${post.salary} per month` : 'Stipend Not Disclosed'}
+                                    duration={post.duration || 'Duration Not Specified'}
+                                    startDate={post.startDate || 'To Be Decided'}
+                                    openings={post.openings || 'Not Specified'} // Add this if openings is part of the data
+                                    applyBy={post.applyBy || 'Not Specified'} // Add this if applyBy is part of the data
+                                    postedAgo={new Date(post.updatedAt).toLocaleDateString() || 'Not Specified'}
+                                />
+                            ))}
                         </div>
                     </div>
 

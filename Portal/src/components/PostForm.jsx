@@ -16,7 +16,16 @@ const PostForm = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+
+        // Automatically set duration to "Full Time" if "fulltime" is selected
+        if (name === 'opportunityType' && value === 'fulltime') {
+            setFormData((prev) => ({ ...prev, [name]: value, duration: 'Full Time' }));
+        } else if (name === 'opportunityType' && value === 'internship') {
+            // Reset duration if "internship" is selected to allow custom input
+            setFormData((prev) => ({ ...prev, [name]: value, duration: '' }));
+        } else {
+            setFormData((prev) => ({ ...prev, [name]: value }));
+        }
     };
 
     const handleSkillChange = (index, value) => {
@@ -58,7 +67,6 @@ const PostForm = () => {
                     },
                 }
             );
-            console.log(response.data); 
             setIsModalOpen(false); 
             handleReset();
         } catch (error) {
@@ -142,23 +150,16 @@ const PostForm = () => {
                             className="w-full p-2 border border-gray-300 rounded-md mb-4"
                         />
 
-                        <input
-                            type="text"
+                        <select
                             name="opportunityType"
                             value={formData.opportunityType}
                             onChange={handleChange}
-                            placeholder="Opportunity Type"
                             className="w-full p-2 border border-gray-300 rounded-md mb-4"
-                        />
-
-                        <input
-                            type="number"
-                            name="salary"
-                            value={formData.salary}
-                            onChange={handleChange}
-                            placeholder="Salary (Optional)"
-                            className="w-full p-2 border border-gray-300 rounded-md mb-4"
-                        />
+                        >
+                            <option value="" disabled>Select Opportunity Type</option>
+                            <option value="internship">Internship</option>
+                            <option value="fulltime">Full-time Job</option>
+                        </select>
 
                         <input
                             type="text"
@@ -166,6 +167,16 @@ const PostForm = () => {
                             value={formData.duration}
                             onChange={handleChange}
                             placeholder="Duration (Optional)"
+                            className="w-full p-2 border border-gray-300 rounded-md mb-4"
+                            readOnly={formData.opportunityType === 'fulltime'}
+                        />
+
+                        <input
+                            type="number"
+                            name="salary"
+                            value={formData.salary}
+                            onChange={handleChange}
+                            placeholder="Salary (Optional) in K"
                             className="w-full p-2 border border-gray-300 rounded-md mb-4"
                         />
 

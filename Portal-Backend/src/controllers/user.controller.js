@@ -335,6 +335,37 @@ const addMyAppliedJobs = asyncHandler(async (req, res) => {
     }
 });
 
+const removeMyAppliedJob = asyncHandler(async (req, res) => {
+    const { jobId } = req.body;
+
+    if (!jobId) {
+        throw new ApiError(400, 'Job ID is required');
+    }
+
+    try {
+        const user = await User.findById(req.user._id);
+
+        if (!user) {
+            throw new ApiError(404, 'User not found');
+        }
+
+        // Check if the job is in the applied list
+        const jobIndex = user.myApplied.indexOf(jobId);
+        if (jobIndex === -1) {
+            throw new ApiError(404, 'Job not found in applied list');
+        }
+
+        // Remove the job from the applied list
+        user.myApplied.splice(jobIndex, 1);
+
+        await user.save();
+
+        return res.status(200).json(new ApiResponse(200, {}, 'Job removed from applied list successfully'));
+    } catch (error) {
+        return res.status(500).json({ message: 'An error occurred while removing the job from the applied list', error });
+    }
+});
+
 
 
 
@@ -349,5 +380,6 @@ export {
     updateUserProfileImage,
     addQualification,
     getMyAppliedJobs,
-    addMyAppliedJobs
+    addMyAppliedJobs,
+    removeMyAppliedJob
 }
