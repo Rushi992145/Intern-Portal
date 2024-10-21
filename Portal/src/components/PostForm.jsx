@@ -1,55 +1,92 @@
-import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import {
-    toggleModal,
-    updateFormData,
-    addSkill,
-    updateSkill,
-    resetForm,
-} from '../redux/postSlice.js';
+import React, { useState } from 'react';
+import axios from 'axios';
 
 const PostForm = () => {
-    const dispatch = useDispatch();
-    const { isModalOpen, formData } = useSelector((state) => state.post);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [formData, setFormData] = useState({
+        role: '',
+        companyName: '',
+        description: '',
+        applicationLink: '',
+        requiredSkills: [''],
+        opportunityType: '',
+        salary: '',
+        duration: '',
+    });
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        dispatch(updateFormData({ name, value }));
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSkillChange = (index, value) => {
-        dispatch(updateSkill({ index, value }));
+        const updatedSkills = [...formData.requiredSkills];
+        updatedSkills[index] = value;
+        setFormData((prev) => ({ ...prev, requiredSkills: updatedSkills }));
     };
 
     const handleAddSkill = () => {
-        dispatch(addSkill());
+        setFormData((prev) => ({
+            ...prev,
+            requiredSkills: [...prev.requiredSkills, ''],
+        }));
     };
 
     const handleReset = () => {
-        dispatch(resetForm());
+        setFormData({
+            role: '',
+            companyName: '',
+            description: '',
+            applicationLink: '',
+            requiredSkills: [''],
+            opportunityType: '',
+            salary: '',
+            duration: '',
+        });
+    };
+
+    const handleSubmit = async () => {
+        console.log(formData)
+        try {
+            
+            const response = await axios.post('http://localhost:9000/api/v2/post/create-post', formData);
+            console.log(response.data); // Log success message
+            setIsModalOpen(false); // Close the modal
+            handleReset(); // Reset form after submission
+        } catch (error) {
+            console.error('Error submitting the form:', error);
+        }
     };
 
     return (
         <>
             <button
                 className="bg-blue-500 text-white px-4 py-2 rounded-md"
-                onClick={() => dispatch(toggleModal())}
+                onClick={() => setIsModalOpen(true)}
             >
                 Create Post
             </button>
 
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                    <div className="bg-white p-6 rounded-md w-[500px] relative"> {/* Added relative positioning */}
-                        {/* Close button */}
+                    <div className="bg-white p-6 rounded-md w-[500px] relative">
                         <button
                             className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
-                            onClick={() => dispatch(toggleModal())} // Close the modal
+                            onClick={() => setIsModalOpen(false)}
                         >
-                            <span className="material-symbols-outlined">close</span> {/* Icon for close button */}
+                            <span className="material-symbols-outlined">close</span>
                         </button>
 
                         <h2 className="text-lg font-semibold mb-4">Create a New Post</h2>
+
+                        <input
+                            type="text"
+                            name="role"
+                            value={formData.role}
+                            onChange={handleChange}
+                            placeholder="Role"
+                            className="w-full p-2 border border-gray-300 rounded-md mb-4"
+                        />
 
                         <input
                             type="text"
@@ -68,23 +105,12 @@ const PostForm = () => {
                             className="w-full p-2 border border-gray-300 rounded-md mb-4"
                         />
 
-                        <input
-                            type="text"
-                            name="impression"
-                            value={formData.impression}
-                            onChange={handleChange}
-                            placeholder="Impression"
-                            className="w-full p-2 border border-gray-300 rounded-md mb-4"
-                        />
-
                         {formData.requiredSkills.map((skill, index) => (
                             <div key={index} className="flex items-center gap-2 mb-2">
                                 <input
                                     type="text"
-                                    value={skill.skill}
-                                    onChange={(e) =>
-                                        handleSkillChange(index, e.target.value)
-                                    }
+                                    value={skill}
+                                    onChange={(e) => handleSkillChange(index, e.target.value)}
                                     placeholder={`Skill ${index + 1}`}
                                     className="w-full p-2 border border-gray-300 rounded-md"
                                 />
@@ -107,6 +133,33 @@ const PostForm = () => {
                             className="w-full p-2 border border-gray-300 rounded-md mb-4"
                         />
 
+                        <input
+                            type="text"
+                            name="opportunityType"
+                            value={formData.opportunityType}
+                            onChange={handleChange}
+                            placeholder="Opportunity Type"
+                            className="w-full p-2 border border-gray-300 rounded-md mb-4"
+                        />
+
+                        <input
+                            type="number"
+                            name="salary"
+                            value={formData.salary}
+                            onChange={handleChange}
+                            placeholder="Salary (Optional)"
+                            className="w-full p-2 border border-gray-300 rounded-md mb-4"
+                        />
+
+                        <input
+                            type="text"
+                            name="duration"
+                            value={formData.duration}
+                            onChange={handleChange}
+                            placeholder="Duration (Optional)"
+                            className="w-full p-2 border border-gray-300 rounded-md mb-4"
+                        />
+
                         <div className="flex justify-end gap-2">
                             <button
                                 className="bg-gray-300 px-4 py-2 rounded-md"
@@ -116,20 +169,10 @@ const PostForm = () => {
                             </button>
                             <button
                                 className="bg-blue-500 text-white px-4 py-2 rounded-md"
-                                onClick={() => dispatch(toggleModal())}
+                                onClick={handleSubmit}
                             >
                                 Submit
                             </button>
-
-                            {/* <button
-                                className="bg-blue-500 text-white px-4 py-2 rounded-md"
-                                onClick={() => {
-                                    console.log(formData); // Log the entire formData object
-                                    dispatch(toggleModal()); // Optionally close the modal after submitting
-                                }}
-                            >
-                                Submit
-                            </button> */}
                         </div>
                     </div>
                 </div>
