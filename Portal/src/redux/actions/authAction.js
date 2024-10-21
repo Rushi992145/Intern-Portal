@@ -3,7 +3,7 @@
 export const updateUser = (userData) => {
     return async (dispatch, getState) => {
         const { accessToken } = getState().auth; // Access the token from Redux state
-        console.log(accessToken)
+        console.log(userData)
         dispatch({ type: 'UPDATE_USER_REQUEST' });
 
         try {
@@ -15,9 +15,9 @@ export const updateUser = (userData) => {
                 },
                 body: JSON.stringify(userData),
             });
-
+            
             const data = await response.json();
-
+            console.log(response)
             if (response.ok) {
                 dispatch({ type: 'UPDATE_USER_SUCCESS', payload: data });
             } else {
