@@ -8,7 +8,7 @@ const PostForm = () => {
         companyName: '',
         description: '',
         applicationLink: '',
-        requiredSkills: [''],
+        requiredSkills: [],
         opportunityType: '',
         salary: '',
         duration: '',
@@ -46,17 +46,26 @@ const PostForm = () => {
     };
 
     const handleSubmit = async () => {
-        console.log(formData)
+        console.log(localStorage);
         try {
-            
-            const response = await axios.post('http://localhost:9000/api/v2/post/create-post', formData);
-            console.log(response.data); // Log success message
-            setIsModalOpen(false); // Close the modal
-            handleReset(); // Reset form after submission
+            const token = localStorage.getItem('accessToken');
+            const response = await axios.post(
+                'http://localhost:9000/api/v2/post/create-post', 
+                formData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            console.log(response.data); 
+            setIsModalOpen(false); 
+            handleReset();
         } catch (error) {
             console.error('Error submitting the form:', error);
         }
     };
+    
 
     return (
         <>

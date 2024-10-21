@@ -12,7 +12,7 @@ export const signupUser = createAsyncThunk(
             });
 
             if (response.data.data.accessToken && response.data.data.user) {
-                localStorage.setItem('accessToken', response.data.accessToken);
+                localStorage.setItem('accessToken', response.data.data.accessToken);
                 localStorage.setItem('user', JSON.stringify(response.data.data.user));
                 console.log("localStorage set");
                 
@@ -33,9 +33,10 @@ export const loginUser = createAsyncThunk(
     async (credentials, { rejectWithValue }) => {
         try {
             const response = await axios.post('http://localhost:9000/api/v2/users/login', credentials);
+            console.log(response);
 
             if (response.data.data.accessToken && response.data.data.user) {
-                localStorage.setItem('accessToken', response.data.accessToken);
+                localStorage.setItem('accessToken', response.data.data.accessToken);
                 localStorage.setItem('user', JSON.stringify(response.data.data.user));
                 console.log("localStorage set");
             }
