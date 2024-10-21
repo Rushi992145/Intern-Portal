@@ -28,3 +28,37 @@ export const updateUser = (userData) => {
         }
     };
 };
+
+export const addQualification = (qualificationData) => {
+    return async (dispatch, getState) => {
+        const { accessToken } = getState().auth; // Access the token from Redux state
+        console.log(qualificationData);
+        
+        dispatch({ type: 'ADD_QUALIFICATION_REQUEST' });
+
+        try {
+            const response = await fetch('http://localhost:9000/api/v2/users/add-qualification', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', // Specify content type
+                    Authorization: `Bearer ${accessToken}`,
+                },
+                body: JSON.stringify({ qualification: qualificationData }), // Wrap in an object
+            });
+
+            const data = await response.json();
+            console.log(response);
+            
+            if (response.ok) {
+                dispatch({ type: 'ADD_QUALIFICATION_SUCCESS', payload: data });
+            } else {
+                throw new Error(data.message || 'Error adding qualification');
+            }
+        } catch (error) {
+            console.error('Error in addQualification:', error); // Log the error for debugging
+            dispatch({ type: 'ADD_QUALIFICATION_FAILURE', payload: error.message });
+        }
+    };
+};
+
+
