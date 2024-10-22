@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser, signupUser } from '../redux/authSlice';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
 
 const SignInPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate(); 
-    const { loading, error } = useSelector((state) => state.auth); 
+    const { error } = useSelector((state) => state.auth); 
 
     const [isLogin, setIsLogin] = useState(true);
     const [formData, setFormData] = useState({
@@ -127,12 +127,12 @@ const SignInPage = () => {
                 <button
                     type="submit"
                     className="bg-blue-500 text-white px-4 py-2 rounded-md w-full"
-                    disabled={loading}
+                    disabled={false} // Change this to false since loading is removed
                 >
-                    {loading ? 'Processing...' : isLogin ? 'Login' : 'Sign Up'}
+                    {isLogin ? 'Login' : 'Sign Up'}
                 </button>
 
-                {error && <p  className="text-red-500 mt-2 text-center">{error}</p>}
+                {error && <p className="text-red-500 mt-2 text-center">{error}</p>}
             </form>
 
             <button onClick={handleToggle} className="mt-4 text-blue-500">
