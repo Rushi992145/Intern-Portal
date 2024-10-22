@@ -86,6 +86,7 @@ const IntershipPage = () => {
                                     startDate={post.startDate || 'To Be Decided'}
                                     openings={post.openings || 'Not Specified'} // Add this if openings is part of the data
                                     applyBy={post.applyBy || 'Not Specified'} // Add this if applyBy is part of the data
+                                    applyLink={post.applicationLink}
                                     postedAgo={new Date(post.updatedAt).toLocaleDateString() || 'Not Specified'}
                                 />
                             ))}

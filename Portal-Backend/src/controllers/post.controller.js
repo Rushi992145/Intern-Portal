@@ -1,221 +1,118 @@
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/ApiError.js";
-import {Post} from "../models/post.model.js";
-import {ApiResponse} from "../utils/ApiResponse.js"
-import {User} from "../models/user.model.js"
-import jwt from "jsonwebtoken"
-import mongoose from "mongoose";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
 
+const AppliedComponent = () => {
+    const [isSelected, setisSelected] = useState(true);
+    const [appliedJobs, setAppliedJobs] = useState([]);
+    const [loading, setLoading] = useState(true);
 
+    // Function to load applied jobs from the server
+    const loadAppliedJobs = async () => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            const appliedJobIds = JSON.parse(localStorage.getItem('myApplied')) || [];
 
-
-const createPost = asyncHandler(async (req, res) => {
-    const { role, companyName, description, applicationLink, requiredSkills ,opportunityType, salary , duration} = req.body;
-
-    if (!role || !companyName || !description || !applicationLink) {
-        throw new ApiError(400, "All required fields must be provided.");
-    }
-    const owner = req.user._id
-
-    const user = await User.findById(owner);
-    if (!user) {
-        throw new ApiError(404, "User not found.");
-    }
-
-    const post = new Post({
-        owner,
-        role,
-        companyName,
-        description,
-        applicationLink,
-        requiredSkills,
-        opportunityType,
-        salary,
-        duration
-    });
-
-    await post.save();
-
-    res.status(201).json(new ApiResponse(201, "Post created successfully", post));
-});
-
-const getAllPosts = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10 } = req.query;
-
-    const options = {
-        page: parseInt(page, 10),
-        limit: parseInt(limit, 10),
-    };
-
-    const posts = await Post.aggregatePaginate(Post.aggregate(), options);
-
-    res.status(200).json(new ApiResponse(200, "Posts retrieved successfully", posts));
-});
-
-const getAllPostsbyFilter = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, search, companyName, role, userId , salary} = req.query;
-
-    
-
-    const aggregationPipeline = [];
-
-    // Filter by companyName if provided
-    if (companyName) {
-        aggregationPipeline.push({
-            $match: {
-                companyName: { $regex: companyName, $options: "i" },
-            },
-        });
-    }
-
-    if (salary) {
-        aggregationPipeline.push({
-            $match: {
-                salary: { $gte: salary }
+            // Ensure appliedJobIds is an array before making the API call
+            if (appliedJobIds.length === 0) {
+                setLoading(false);
+                return;
             }
-        });
-    }
 
-    // Filter by role if provided
-    if (role) {
-        aggregationPipeline.push({
-            $match: {
-                role: { $regex: role, $options: "i" },
-            },
-        });
-    }
+            const response = await axios.post(
+                'http://localhost:9000/api/v2/post/my-applied-jobs',
+                { jobId: appliedJobIds }, // Send jobId as an array
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
 
-    // Filter by owner if userId is provided
-    if (userId) {
-        aggregationPipeline.push({
-            $match: {
-                owner: new mongoose.Types.ObjectId(userId),
-            },
-        });
-    }
-
-    // Apply general search if provided
-    if (search) {
-        aggregationPipeline.push({
-            $match: {
-                $or: [
-                    { description: { $regex: search, $options: "i" } },
-                    { role: { $regex: search, $options: "i" } },
-                    { companyName: { $regex: search, $options: "i" } },
-                ],
-            },
-        });
-    }
-
-    const options = {
-        page: parseInt(page, 10),
-        limit: parseInt(limit, 10),
-    };
-
-    const posts = await Post.aggregatePaginate(Post.aggregate(aggregationPipeline), options);
-
-    res.status(200).json(new ApiResponse(200, "Posts retrieved successfully", posts));
-});
-
-const getPostAddedByLoggedUser = asyncHandler(async (req, res) => {
-    const owner = req.user._id;
-
-    if (!owner) {
-        throw new ApiError(404, "User Not Found");
-    }
-
-    try {
-        const posts = await Post.find({ owner });
-
-        if (!posts || posts.length === 0) {
-            return res.status(404).json(new ApiResponse(404, {}, "No posts found for this user"));
+            console.log('Applied jobs response:', response.data);
+            setAppliedJobs(response.data.jobs); // Adjust this based on your backend response structure
+            setLoading(false);
+        } catch (error) {
+            console.error('Error fetching applied jobs:', error);
+            setLoading(false);
         }
-
-        res.status(200).json(new ApiResponse(200, posts, "Posts retrieved successfully"));
-    } catch (error) {
-        throw new ApiError(500, "Something went wrong while fetching posts");
-    }
-});
-
-const updatePost = asyncHandler(async (req, res) => {
-    const { postId } = req.query;
-    console.log(req)
-    const owner = req.user._id;
-
-    if (!mongoose.Types.ObjectId.isValid(postId)) {
-        throw new ApiError(400, "Invalid post ID");
-    }
-
-    const post = await Post.findById(postId);
-    
-    if (!post) {
-        throw new ApiError(404, "Post not found");
-    }
-
-    if (post.owner.toString() !== owner.toString()) {
-        throw new ApiError(403, "You do not have permission to update this post");
-    }
-
-
-    const { role, companyName, description, applicationLink, requiredSkills ,salary ,opportunityType,duration} = req.body;
-
-
-    if (role) post.role = role;
-    if (companyName) post.companyName = companyName;
-    if (description) post.description = description;
-    if (applicationLink) post.applicationLink = applicationLink;
-    if (requiredSkills) post.requiredSkills = requiredSkills;
-    if(opportunityType) post.opportunityType = opportunityType;
-    if(salary) post.salary = salary;
-    if(duration) post.duration = duration;
-
-    const updatedPost = await post.save();
-
-    res.status(200).json(new ApiResponse(200, updatedPost, "Post updated successfully"));
-});
-
-const getAllPostOfInternship = asyncHandler(async(req,res) => {
-    console.log("------------req is received---------------")
-    const { page = 1, limit = 10} = req.query;
-
-    const aggregationPipeline = [];
-
-
-    aggregationPipeline.push({
-        $match: {
-            opportunityType: { $regex: 'internship', $options: "i" },
-        },
-    });
-
-    const options = {
-        page: parseInt(page, 10),
-        limit: parseInt(limit, 10),
     };
 
-    const posts = await Post.aggregatePaginate(Post.aggregate(aggregationPipeline), options);
+    // useEffect hook to load applied jobs when the component mounts
+    useEffect(() => {
+        // Call loadAppliedJobs once when the component mounts
+        loadAppliedJobs();
 
-    res.status(200).json(new ApiResponse(200, "Posts retrieved successfully", posts));
-})
+        // Optionally, you can listen for a page reload event using a custom event handler
+        const handleReload = () => {
+            loadAppliedJobs();
+        };
 
-const getAllPostOfFulltime = asyncHandler(async(req,res) => {
-    const { page = 1, limit = 10} = req.query;
+        // Add event listener for reload or refresh
+        window.addEventListener('load', handleReload);
 
-    const aggregationPipeline = [];
+        // Clean up event listener on component unmount
+        return () => {
+            window.removeEventListener('load', handleReload);
+        };
+    }, []); // Empty dependency array means this effect runs once when the component mounts
 
-    aggregationPipeline.push({
-        $match: {
-            opportunityType: { $regex: 'full', $options: "i" },
-        },
-    });
+    return (
+        <div>
+            <div>
+                <div className='flex items-center gap-3'>
+                    <div onClick={() => setisSelected(true)} className={`text-xl font-bold cursor-pointer hover:shadow-lg ${isSelected && 'text-blue-600 underline'}`}>My Applied</div>
+                    <div className='border-2 h-6 mx-2'></div>
+                    <div onClick={() => setisSelected(false)} className={`text-xl font-bold cursor-pointer hover:shadow-lg ${!isSelected && 'text-blue-600 underline'}`}>My Posts</div>
+                </div>
 
-    const options = {
-        page: parseInt(page, 10),
-        limit: parseInt(limit, 10),
-    };
+                <p className='pt-5'>Once the internship is closed, it will be removed after 90 days from this list</p>
+            </div>
 
-    const posts = await Post.aggregatePaginate(Post.aggregate(aggregationPipeline), options);
+            {loading ? (
+                <div className="flex justify-center items-center pt-20">
+                    <p>Loading...</p>
+                </div>
+            ) : (
+                isSelected ? (
+                    appliedJobs.length > 0 ? (
+                        <div className='pt-10'>
+                            <h2 className='font-bold text-2xl mb-4'>My Applied Jobs</h2>
+                            <ul>
+                                {appliedJobs.map((job) => (
+                                    <li key={job._id} className='mb-4 border-b pb-2'>
+                                        <div className='font-semibold'>{job.companyName}</div>
+                                        <div className='text-gray-500'>{job.position}</div>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ) : (
+                        <div className='flex justify-center items-center gap-10 flex-col pt-36'>
+                            <p className='font-bold text-xl'>No Applied internships</p>
+                            <p>You have not applied to any internship yet.</p>
+                            <Link to='/internships'>
+                                <button className='bg-blue-600 text-white p-3 rounded-md w-40 '>
+                                    Search Internship
+                                </button>
+                            </Link>
+                        </div>
+                    )
+                ) : (
+                    <div className='flex justify-center items-center gap-10 flex-col pt-36'>
+                        {/* Render My Posts content here */}
+                        <p className='font-bold text-xl'>No Posts</p>
+                        <p>You have not posted any job yet.</p>
+                        <Link to='/fulltime-jobs'>
+                            <button className='bg-blue-600 text-white p-3 rounded-md w-40 '>
+                                Search Job
+                            </button>
+                        </Link>
+                    </div>
+                )
+            )}
+        </div>
+    );
+};
 
-    res.status(200).json(new ApiResponse(200, "Posts retrieved successfully", posts));
-})
-
-export { createPost, getAllPosts , getAllPostsbyFilter, getPostAddedByLoggedUser,updatePost,getAllPostOfInternship,getAllPostOfFulltime};
+export default AppliedComponent;

@@ -23,7 +23,10 @@ const FullTimeJobsPage = () => {
             
             // Extract the posts from the response data
             const fetchedPosts = response.data.message.docs;
+            // console.log(fetchedPosts);
+            
             setPosts(fetchedPosts); // Update state with the posts array
+
         } catch (error) {
             console.error("Error fetching posts:", error);
         }
@@ -79,7 +82,7 @@ const FullTimeJobsPage = () => {
                                 <PostTemplate
                                     key={post._id || index}
                                     keyProp={post._id || index}
-                                    logoSrc={post.logoSrc || './src/assets/default-logo.png'}
+                                    logoSrc={post.logoSrc}
                                     title={post.role || 'Internship Position'}
                                     companyName={post.companyName || 'Unknown Company'}
                                     location={post.location || 'Location Not Specified'}
@@ -89,6 +92,7 @@ const FullTimeJobsPage = () => {
                                     startDate={post.startDate || 'To Be Decided'}
                                     openings={post.openings || 'Not Specified'}
                                     applyBy={post.applyBy || 'Not Specified'}
+                                    applyLink={post.applicationLink}
                                     postedAgo={post.updatedAt ? new Date(post.updatedAt).toLocaleDateString() : 'Not Specified'}
                                 />
                             ))}

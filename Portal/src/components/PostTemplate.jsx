@@ -13,7 +13,8 @@ const PostTemplate = ({
     startDate = 'To Be Decided',
     openings = 'Not Specified',
     applyBy = 'Not Specified',
-    postedAgo = 'Not Specified'
+    postedAgo = 'Not Specified',
+    applyLink // Add applyLink as a prop
 }) => {
     console.log("key", keyProp);
 
@@ -62,6 +63,10 @@ const PostTemplate = ({
         }
     };
     
+    // Function to handle apply now click
+    const handleApplyClick = () => {
+        window.location.href = applyLink; // Redirect to the specified link
+    };
 
     return (
         <div className="p-4 flex justify-center">
@@ -142,7 +147,10 @@ const PostTemplate = ({
                         <button className="border border-gray-500 p-3 rounded-lg hover:bg-gray-300">
                             View Details
                         </button>
-                        <button className="bg-blue-700 text-white p-3 rounded-lg hover:bg-blue-500">
+                        <button 
+                            className="bg-blue-700 text-white p-3 rounded-lg hover:bg-blue-500"
+                            onClick={handleApplyClick}
+                        >
                             Apply Now
                         </button>
                     </div>
