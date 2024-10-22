@@ -11,6 +11,7 @@ import { Provider } from 'react-redux';
 import store from './redux/store';
 import SignInPage from "./page/SignInPage";
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 
 function App() {
 
@@ -29,6 +30,7 @@ function App() {
           <Route path="/profile" element={ <ProfilePage/> }/>
           
         </Routes>
+        <Footer/>
       </BrowserRouter>
     </Provider>
   )

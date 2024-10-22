@@ -76,7 +76,7 @@ const PostForm = () => {
     
 
     return (
-        <>
+        <div className='z-20'>
             <button
                 className="bg-blue-500 text-white px-4 py-2 rounded-md"
                 onClick={() => setIsModalOpen(true)}
@@ -197,7 +197,7 @@ const PostForm = () => {
                     </div>
                 </div>
             )}
-        </>
+        </div>
     );
 };
 

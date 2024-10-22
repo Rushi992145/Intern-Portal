@@ -36,6 +36,8 @@ const ProfilePage = () => {
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState("");
   const [qualSuccessMessage, setQualSuccessMessage] = useState("");
+  const currentYear = new Date().getFullYear();
+  console.log(currentYear)
 
   useEffect(() => {
     if (user) {
@@ -45,8 +47,7 @@ const ProfilePage = () => {
         fullname: user.fullname,
       });
     }
-    animateSkillBars();
-  }, []);
+  }, [user]);
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
@@ -73,6 +74,8 @@ const ProfilePage = () => {
       setError(error.message);
     }
   };
+  
+  
 
   const handleQualAddSubmit = async (e) => {
     e.preventDefault();
@@ -86,10 +89,9 @@ const ProfilePage = () => {
 
       setQualSuccessMessage("Qualification added successfully!");
       setError(null);
-      setAddQuali({ degree: "", startYear: "", endYear: "" }); // Reset the qualification form
-      seteditQualMode(false); // Close the edit qualification mode
+      setAddQuali({ degree: "", startYear: "", endYear: "" });
+      seteditQualMode(false); 
 
-      // Optional: Hide success message after 3 seconds
       setTimeout(() => setQualSuccessMessage(""), 3000);
     } catch (error) {
       setError(error.message);
@@ -102,7 +104,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="text-black h-screen flex flex-col bg-gray-50">
+    <div className="text-black h-[120vh] flex flex-col bg-gray-50">
       <div className="flex flex-1">
         <div className="w-[20vw] border-r border-gray-200">
           <SideBar />
@@ -126,7 +128,7 @@ const ProfilePage = () => {
           <div className="bg-white p-8 shadow-lg rounded-lg mb-12 border border-gray-200">
             <div className="text-center">
               <h2 className="text-4xl font-bold text-gray-900 animate-fade-in">
-                {user.username}
+                {editedUser.username}
               </h2>
             </div>
           </div>
@@ -188,14 +190,14 @@ const ProfilePage = () => {
 
             {!editMode && (
               <div className="grid grid-cols-2 gap-6 text-gray-600">
-                <UserName user={user} />
+                <UserName user={editedUser} />
                 <div>
                   <p className="font-semibold">Username</p>
-                  <p>{user.username}</p>
+                  <p>{editedUser.username}</p>
                 </div>
                 <div>
                   <p className="font-semibold">Email Address</p>
-                  <p>{user.email}</p>
+                  <p>{editedUser.email}</p>
                 </div>
               </div>
             )}
@@ -210,17 +212,20 @@ const ProfilePage = () => {
             <div className="grid grid-cols-2 gap-6 text-gray-600">
               {user.qualifications.map((qualification, index) => (
                 <div key={index} className="flex items-center justify-between border-b border-gray-300 py-4">
-                <div className="flex flex-col">
-                  <p className="font-semibold text-lg">{qualification.degree}</p>
-                  <p className="text-gray-500 text-sm">{qualification.startYear} - {qualification.endYear}</p>
+                  <div className="flex flex-col">
+                    <p className="font-semibold text-lg">{qualification.degree}</p>
+                    <p className="text-gray-500 text-sm">{qualification.startYear} - {qualification.endYear}</p>
+                  </div>
+                  <div className="flex items-center">
+                    {qualification.endYear < currentYear ?(<span className="bg-blue-500 text-white text-xs font-semibold px-2 py-1 rounded-full mr-2">
+                      Completed
+                    </span>):(<span className="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full mr-2">
+                      Not Completed
+                    </span>)
+                    }
+                  </div>
                 </div>
-                <div className="flex items-center">
-                  <span className="bg-blue-500 text-white text-xs font-semibold px-2 py-1 rounded-full mr-2">
-                    Completed
-                  </span>
-                </div>
-              </div>
-              
+
               ))}
             </div>
 
