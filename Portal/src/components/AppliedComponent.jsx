@@ -40,8 +40,22 @@ const AppliedComponent = () => {
 
     // useEffect hook to load applied jobs when the component mounts
     useEffect(() => {
+        // Call loadAppliedJobs once when the component mounts
         loadAppliedJobs();
-    }, []);
+
+        // Optionally, you can listen for a page reload event using a custom event handler
+        const handleReload = () => {
+            loadAppliedJobs();
+        };
+
+        // Add event listener for reload or refresh
+        window.addEventListener('load', handleReload);
+
+        // Clean up event listener on component unmount
+        return () => {
+            window.removeEventListener('load', handleReload);
+        };
+    }, []); // Empty dependency array means this effect runs once when the component mounts
 
     return (
         <div>
