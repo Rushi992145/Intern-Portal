@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const PostTemplate = ({
     keyProp,
-    logoSrc = './src/assets/complogo.png',
+    logoSrc = 'https://cdn.vectorstock.com/i/1000x1000/73/46/job-time-logo-icon-design-vector-22947346.webp',
     title = 'Internship Position',
     companyName = 'Unknown Company',
     location = 'Location Not Specified',
@@ -73,7 +73,7 @@ const PostTemplate = ({
             <div className="w-full max-w-3xl border border-gray-400 rounded-xl p-6">
                 <div className="companyInfo flex flex-wrap items-center justify-between gap-5">
                     <div className="logo">
-                        <img className="w-12 h-12 rounded-full" src={logoSrc} alt="Company Logo" />
+                        <img className="w-12 h-12 rounded-full" src={'https://cdn.vectorstock.com/i/1000x1000/73/46/job-time-logo-icon-design-vector-22947346.webp'} alt="Company Logo" />
                     </div>
 
                     <div className="title flex-1">
