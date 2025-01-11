@@ -7,17 +7,18 @@ import AppliedPage from "./page/AppliedPage";
 // import PostTemplate from "./components/PostTemplate";
 import ProfilePage from "./page/ProfilePage";
 import AppliedComponent from "./components/AppliedComponent";
-import { Provider } from 'react-redux';
-import store from './redux/store';
 import SignInPage from "./page/SignInPage";
 import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
+import { Toaster } from "react-hot-toast";
 
 function App() {
 
   return (
-    <Provider store={store}>
-        <BrowserRouter>
+    <>
+      <div className="">
+        <Toaster position="top-center" />
+      </div>
+      <BrowserRouter>
         <Navbar />
         <Routes>
           <Route path="/" element={<LandingPage/>} />
@@ -30,9 +31,8 @@ function App() {
           <Route path="/profile" element={ <ProfilePage/> }/>
           
         </Routes>
-        <Footer/>
       </BrowserRouter>
-    </Provider>
+    </>
   )
 }
 
