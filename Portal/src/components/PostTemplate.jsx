@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useSelector, useDispatch } from 'react-redux';
+import { updateUser } from '../redux/user/userSlice';
+import conf from '../conf/conf.js';
 
 const PostTemplate = ({
     keyProp,
-    logoSrc = 'https://cdn.vectorstock.com/i/1000x1000/73/46/job-time-logo-icon-design-vector-22947346.webp',
+    logoSrc = './src/assets/complogo.png',
     title = 'Internship Position',
     companyName = 'Unknown Company',
     location = 'Location Not Specified',
@@ -14,40 +17,61 @@ const PostTemplate = ({
     openings = 'Not Specified',
     applyBy = 'Not Specified',
     postedAgo = 'Not Specified',
-    applyLink // Add applyLink as a prop
+    applyLink,
+    description = 'No description available.', // New prop for description
 }) => {
-    console.log("key", keyProp);
-
     const [isBookmarked, setIsBookmarked] = useState(false);
+    const [isDescriptionVisible, setIsDescriptionVisible] = useState(false); // State for description visibility
+    const { currentUser } = useSelector((state) => state.user);
+    const dispatch = useDispatch();
 
-    // Function to toggle bookmark status
+    useEffect(() => {
+        const appliedJobs = currentUser?.data?.data?.user?.myApplied ?? [];
+        setIsBookmarked(appliedJobs.includes(keyProp));
+    }, [currentUser, keyProp]);
+
     const handleBookmarkClick = async () => {
-        const token = localStorage.getItem('accessToken'); // Get the token from localStorage
-        console.log("Token:", token); // Log the token for debugging
-    
+        const token = currentUser?.data?.data?.accessToken;
+
         if (!token) {
-            console.error("No access token found");
-            return; // Early return if no token is found
+            alert('You need to log in to bookmark or unbookmark jobs.');
+            return;
         }
-    
+
         try {
             if (isBookmarked) {
-                // Remove bookmark
-                await axios.delete(
-                    'http://localhost:9000/api/v2/users/remove-my-applied-job',
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                            'Content-Type': 'application/json',
-                        },
-                        data: { jobId: keyProp }, // Pass jobId in the request body for DELETE
-                    }
+                const response = await axios.delete(`${conf.userApiUrl}remove-my-applied-job`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    data: { jobId: keyProp },
+                });
+
+                const updatedMyApplied = currentUser.data.data.user.myApplied.filter(
+                    (jobId) => jobId !== keyProp
                 );
+                dispatch(
+                    updateUser({
+                        ...currentUser,
+                        data: {
+                            ...currentUser.data,
+                            data: {
+                                ...currentUser.data.data,
+                                user: {
+                                    ...currentUser.data.data.user,
+                                    myApplied: updatedMyApplied,
+                                },
+                            },
+                        },
+                    })
+                );
+
+                setIsBookmarked(false);
             } else {
-                // Add bookmark
-                await axios.post(
-                    'http://localhost:9000/api/v2/users/apply-job',
-                    { jobId: keyProp }, // Pass jobId in the request body
+                const response = await axios.post(
+                    `${conf.userApiUrl}apply-job`,
+                    { jobId: keyProp },
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,
@@ -55,17 +79,38 @@ const PostTemplate = ({
                         },
                     }
                 );
+
+                const updatedMyApplied = [...currentUser.data.data.user.myApplied, keyProp];
+                dispatch(
+                    updateUser({
+                        ...currentUser,
+                        data: {
+                            ...currentUser.data,
+                            data: {
+                                ...currentUser.data.data,
+                                user: {
+                                    ...currentUser.data.data.user,
+                                    myApplied: updatedMyApplied,
+                                },
+                            },
+                        },
+                    })
+                );
+
+                setIsBookmarked(true);
             }
-            // Toggle the bookmark state
-            setIsBookmarked(prevState => !prevState);
         } catch (error) {
-            console.error('Error while bookmarking job:', error);
+            console.error('Error while updating bookmark status:', error.response?.data || error.message);
+            alert('Failed to update bookmark status. Please try again.');
         }
     };
-    
-    // Function to handle apply now click
+
     const handleApplyClick = () => {
-        window.location.href = applyLink; // Redirect to the specified link
+        if (!applyLink) {
+            alert('Application link is not available for this job.');
+            return;
+        }
+        window.location.href = applyLink;
     };
 
     return (
@@ -73,13 +118,18 @@ const PostTemplate = ({
             <div className="w-full max-w-3xl border border-gray-400 rounded-xl p-6">
                 <div className="companyInfo flex flex-wrap items-center justify-between gap-5">
                     <div className="logo">
-                        <img className="w-12 h-12 rounded-full" src={'https://cdn.vectorstock.com/i/1000x1000/73/46/job-time-logo-icon-design-vector-22947346.webp'} alt="Company Logo" />
+                        <img
+                            className="w-12 h-12 rounded-full"
+                            src={logoSrc}
+                            alt="Company Logo"
+                            onError={(e) => {
+                                e.target.src = './src/assets/defaultlogo.png';
+                            }}
+                        />
                     </div>
 
                     <div className="title flex-1">
-                        <div className="font-bold text-xl">
-                            {title}
-                        </div>
+                        <div className="font-bold text-xl">{title}</div>
                         <div className="text-gray-400">
                             {companyName} | {location}
                         </div>
@@ -87,7 +137,10 @@ const PostTemplate = ({
 
                     <div className="flex gap-4 text-blue-500 cursor-pointer">
                         <span
-                            className={`material-symbols-outlined w-9 h-9 flex items-center justify-center hover:bg-blue-200 rounded-full ${isBookmarked ? 'text-yellow-500' : ''}`}
+                            className={`material-symbols-outlined w-9 h-9 flex items-center justify-center hover:bg-blue-200 rounded-full ${
+                                isBookmarked ? 'text-yellow-500' : ''
+                            }`}
+                            title={isBookmarked ? 'Remove from Bookmarks' : 'Add to Bookmarks'}
                             onClick={handleBookmarkClick}
                         >
                             bookmark
@@ -99,11 +152,15 @@ const PostTemplate = ({
                 </div>
 
                 <div className="skillsReq pt-5 flex flex-wrap gap-4">
-                    {skills.map((skill, index) => (
-                        <div key={index} className="inline-block px-4 py-1 text-center rounded-2xl bg-slate-100">
-                            {skill}
-                        </div>
-                    ))}
+                    {Array.isArray(skills) &&
+                        skills.map((skill, index) => (
+                            <div
+                                key={index}
+                                className="inline-block px-4 py-1 text-center rounded-2xl bg-slate-100"
+                            >
+                                {skill}
+                            </div>
+                        ))}
                 </div>
 
                 <div className="allInfo pt-10 flex flex-wrap gap-20">
@@ -140,14 +197,15 @@ const PostTemplate = ({
                 </div>
 
                 <div className="pt-12 flex flex-wrap items-center justify-between gap-5">
-                    <div className="text-blue-500">
-                        Posted {postedAgo}
-                    </div>
+                    <div className="text-blue-500">Posted {postedAgo}</div>
                     <div className="flex gap-4">
-                        <button className="border border-gray-500 p-3 rounded-lg hover:bg-gray-300">
-                            View Details
+                        <button
+                            className="border border-gray-500 p-3 rounded-lg hover:bg-gray-300"
+                            onClick={() => setIsDescriptionVisible((prev) => !prev)}
+                        >
+                            {isDescriptionVisible ? 'Hide Description' : 'Show Description'}
                         </button>
-                        <button 
+                        <button
                             className="bg-blue-700 text-white p-3 rounded-lg hover:bg-blue-500"
                             onClick={handleApplyClick}
                         >
@@ -155,6 +213,13 @@ const PostTemplate = ({
                         </button>
                     </div>
                 </div>
+
+                {isDescriptionVisible && (
+                    <div className="pt-5 text-gray-600">
+                        <h3 className="font-bold">Job Description</h3>
+                        <p>{description}</p>
+                    </div>
+                )}
             </div>
         </div>
     );

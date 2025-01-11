@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import axios from 'axios';
+import conf from '../conf/conf.js';
 
 const PostForm = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -59,7 +60,7 @@ const PostForm = () => {
         try {
             const token = localStorage.getItem('accessToken');
             const response = await axios.post(
-                'http://localhost:9000/api/v2/post/create-post', 
+                `${conf.postApiUrl}create-post`, 
                 formData,
                 {
                     headers: {
@@ -76,7 +77,7 @@ const PostForm = () => {
     
 
     return (
-        <div className='z-20'>
+        <>
             <button
                 className="bg-blue-500 text-white px-4 py-2 rounded-md"
                 onClick={() => setIsModalOpen(true)}
@@ -197,7 +198,7 @@ const PostForm = () => {
                     </div>
                 </div>
             )}
-        </div>
+        </>
     );
 };
 

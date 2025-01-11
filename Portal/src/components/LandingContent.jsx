@@ -1,10 +1,7 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import heroImage from '../assets/hero_img.png';  
 
 const LandingContent = () => {
-    const isLoggedIn = !!localStorage.getItem('accessToken'); // Check if user is logged in
-
     return (
         <div className="px-4">
             <div className="flex flex-col md:flex-row m-4 md:m-16">
@@ -17,7 +14,7 @@ const LandingContent = () => {
                         The #1 way college students & early graduates get Internships, Jobs
                     </div>
                     <div className="getstarted pt-6 md:pt-12 pl-4 md:pl-16">
-                        <Link to={isLoggedIn ? "/home" : "/signin"}> {/* Conditional link */}
+                        <Link to="/home"> 
                             <button className="bg-blue-500 text-white p-3 border-none rounded-3xl flex justify-center items-center">
                                 Get Started
                                 <span className="material-symbols-outlined">
@@ -39,10 +36,10 @@ const LandingContent = () => {
             </div>
 
             <div className="info flex items-center flex-col md:flex-row justify-between px-4 md:px-16 m-4 md:m-16">
-                {[ 
-                    { count: '30000+', label: 'Student Users' }, 
-                    { count: '20000+', label: 'Got Opportunities' }, 
-                    { count: '15000+', label: 'Jobs Shared' } 
+                {[
+                    { count: '30000+', label: 'Student Users' },
+                    { count: '20000+', label: 'Got Opportunities' },
+                    { count: '15000+', label: 'Jobs Shared' }
                 ].map((item, index) => (
                     <div key={index} className="text-center p-4">
                         <div className='text-5xl font-bold'>
@@ -58,11 +55,27 @@ const LandingContent = () => {
 
             <div className='text-2xl flex justify-center my-4'>How InternNet helps you?</div>
             <div className="info flex flex-wrap justify-center items-center gap-5 px-4 md:px-16 m-4 md:m-16">
-                {[ 
-                    { imgSrc: "./src/assets/cool.png", title: "Get Upskilled", description: "The #1 way college students & early graduates get Internships, Jobs" }, 
-                    { imgSrc: "./src/assets/profilelogo.png", title: "Create Profile", description: "Create your profile with an easy-to-fill form and get recommended with relevant internships/jobs." }, 
-                    { imgSrc: "./src/assets/hassalfrree.png", title: "Hassle Free", description: "An effortless way to get internships/jobs Opportunity." }, 
-                    { imgSrc: "./src/assets/collab.png", title: "Collaborate & Share", description: "We encourage a community that shares and grows together." } 
+                {[
+                    {
+                        imgSrc: "./src/assets/cool.png",
+                        title: "Get Upskilled",
+                        description: "The #1 way college students & early graduates get Internships, Jobs"
+                    },
+                    {
+                        imgSrc: "./src/assets/profilelogo.png",
+                        title: "Create Profile",
+                        description: "Create your profile with an easy-to-fill form and get recommended with relevant internships/jobs."
+                    },
+                    {
+                        imgSrc: "./src/assets/hassalfrree.png",
+                        title: "Hassle Free",
+                        description: "An effortless way to get internships/jobs Opportunity."
+                    },
+                    {
+                        imgSrc: "./src/assets/collab.png",
+                        title: "Collaborate & Share",
+                        description: "We encourage a community that shares and grows together."
+                    }
                 ].map((card, index) => (
                     <div key={index} className='h-[290px] w-full max-w-[250px] flex flex-col gap-6 justify-center items-center border border-gray-400 rounded-xl p-2'>
                         <img className='w-20 h-20' src={card.imgSrc} alt={card.title} />
@@ -73,7 +86,7 @@ const LandingContent = () => {
             </div>
 
             <div className="getstarted flex justify-center items-center pt-6 md:pt-12">
-                <Link to={isLoggedIn ? "/home" : "/signin"}> {/* Conditional link */}
+                <Link to="/home">
                     <button className="bg-blue-500 w-48 text-white p-3 border-none rounded-3xl flex justify-center items-center">
                         Get Started
                     </button>
