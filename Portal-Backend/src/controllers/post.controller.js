@@ -117,6 +117,38 @@ const getAllPostsbyFilter = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, "Posts retrieved successfully", posts));
 });
 
+const getMyAppliedJobs = asyncHandler(async (req, res) => {
+    const { appliedJobIds } = req.query;
+
+    // Validate that appliedJobIds is provided
+    if (!appliedJobIds) {
+        return res.status(400).json({
+            success: false,
+            message: "No applied job IDs provided",
+        });
+    }
+
+    try {
+        // Convert `appliedJobIds` from a comma-separated string to an array of ObjectIds
+        const jobIdArray = appliedJobIds.split(',').map((id) => new mongoose.Types.ObjectId(id));
+
+        // Query the database for jobs with matching IDs
+        const jobs = await Post.find({ _id: { $in: jobIdArray } });
+
+        res.status(200).json({
+            success: true,
+            jobs,
+        });
+    } catch (error) {
+        console.error("Error fetching applied jobs:", error.message);
+        res.status(500).json({
+            success: false,
+            message: "Error fetching applied jobs",
+        });
+    }
+});
+
+
 const getPostAddedByLoggedUser = asyncHandler(async (req, res) => {
     const owner = req.user._id;
 
@@ -195,7 +227,7 @@ const getAllPostOfInternship = asyncHandler(async(req,res) => {
     const posts = await Post.aggregatePaginate(Post.aggregate(aggregationPipeline), options);
 
     res.status(200).json(new ApiResponse(200, "Posts retrieved successfully", posts));
-})
+});
 
 const getAllPostOfFulltime = asyncHandler(async(req,res) => {
     const { page = 1, limit = 10} = req.query;
@@ -216,7 +248,7 @@ const getAllPostOfFulltime = asyncHandler(async(req,res) => {
     const posts = await Post.aggregatePaginate(Post.aggregate(aggregationPipeline), options);
 
     res.status(200).json(new ApiResponse(200, "Posts retrieved successfully", posts));
-})
+});
 
 const getPostByIds = asyncHandler(async (req, res) => {    
     // Extract the array of post IDs from the request body.
@@ -241,4 +273,4 @@ const getPostByIds = asyncHandler(async (req, res) => {
 });
 
 
-export { createPost, getAllPosts , getAllPostsbyFilter, getPostAddedByLoggedUser,updatePost,getAllPostOfInternship,getAllPostOfFulltime,getPostByIds};
+export { createPost, getAllPosts , getAllPostsbyFilter, getMyAppliedJobs , getPostAddedByLoggedUser,updatePost,getAllPostOfInternship,getAllPostOfFulltime,getPostByIds};

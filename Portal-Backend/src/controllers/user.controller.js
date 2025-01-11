@@ -317,31 +317,47 @@ const getMyAppliedJobs = asyncHandler(async (req, res) => {
 const addMyAppliedJobs = asyncHandler(async (req, res) => {
     const { jobId } = req.body;
 
+    // Validate jobId presence
     if (!jobId) {
-        throw new ApiError(400, 'Job ID is required');
+        return res.status(400).json({ success: false, message: 'Job ID is required' });
     }
 
     try {
+        // Fetch user data based on authenticated user ID
         const user = await User.findById(req.user._id);
 
         if (!user) {
-            throw new ApiError(404, 'User not found');
+            return res.status(404).json({ success: false, message: 'User not found' });
         }
 
-        // Check if the job is already in the applied list
+        // Check if the job is already applied
         if (user.myApplied.includes(jobId)) {
-            throw new ApiError(400, 'Job already applied');
+            return res.status(400).json({ success: false, message: 'Job already applied' });
         }
 
+        // Add jobId to myApplied list
         user.myApplied.push(jobId);
 
+        // Save user data
         await user.save();
 
-        return res.status(200).json(new ApiResponse(200, {}, 'Job added to applied list successfully'));
+        return res.status(200).json({
+            success: true,
+            message: 'Job added to applied list successfully',
+            data: user.myApplied,
+        });
     } catch (error) {
-        return res.status(500).json({ message: 'An error occurred while adding the job to the applied list', error });
+        // Detailed error logging for debugging
+        console.error('Error adding applied job:', error);
+
+        return res.status(500).json({
+            success: false,
+            message: 'An error occurred while adding the job to the applied list',
+            error: error.message || 'Unknown error',
+        });
     }
 });
+
 
 const removeMyAppliedJob = asyncHandler(async (req, res) => {
     const { jobId } = req.body;
