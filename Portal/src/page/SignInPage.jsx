@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { loginUser, signupUser } from '../redux/authSlice';
+import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSlice';
 import { useNavigate } from 'react-router-dom';
-
+import { useState } from 'react';
+import axios from 'axios'
+import conf from '../conf/conf.js'
 const SignInPage = () => {
     const dispatch = useDispatch();
-    const navigate = useNavigate(); 
-    const { error } = useSelector((state) => state.auth); 
+    const navigate = useNavigate();
+    const { isFetching, error } = useSelector((state) => state.user);
 
     const [isLogin, setIsLogin] = useState(true);
     const [formData, setFormData] = useState({
@@ -38,32 +39,40 @@ const SignInPage = () => {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        dispatch(signInStart());
 
         if (isLogin) {
-            dispatch(loginUser({
-                username: formData.username,
-                password: formData.password,
-            })).then((response) => {
-                if (response.meta.requestStatus === 'fulfilled') {
+            try {
+                console.log(formData);
+                const response = await axios.post(`${conf.userApiUrl}login`, {
+                    username: formData.username,
+                    password: formData.password,
+                });
+                console.log('Login Response:', response);
+                    dispatch(signInSuccess(response));
                     navigate('/home');
-                }
-            });
+            } catch (err) {
+                dispatch(signInFailure('Login failed. Please check your credentials.'));
+            }
         } else {
-            const formDataWithFile = new FormData();
-            formDataWithFile.append('username', formData.username);
-            formDataWithFile.append('email', formData.email);
-            formDataWithFile.append('fullname', formData.fullname);
-            formDataWithFile.append('mobileNumber', formData.mobileNumber);
-            formDataWithFile.append('password', formData.password);
-            formDataWithFile.append('birthDate', formData.birthDate);
-
-            dispatch(signupUser(formDataWithFile)).then((response) => {
-                if (response.meta.requestStatus === 'fulfilled') {
-                    navigate('/home'); 
-                }
-            });
+            try {
+                // Simulate signup API call
+                const response = await axios.post(`${conf.userApiUrl}register`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+    
+                console.log(response)
+    
+                console.log('Signup Response:', response.data);
+                dispatch(signInSuccess(response));
+                navigate('/home');
+            } catch (err) {
+                dispatch(signInFailure('Signup failed. Please try again.'));
+            }
         }
     };
 
@@ -80,7 +89,7 @@ const SignInPage = () => {
                             value={formData.fullname}
                             onChange={handleChange}
                             placeholder="Full Name"
-                            className="w-full p-2 border border-gray-300 rounded-md mb-4"
+                            className="w-full p-2 border border-gray-300 rounded-md mb-4 text-black"
                         />
                         <input
                             type="email"
@@ -88,7 +97,7 @@ const SignInPage = () => {
                             value={formData.email}
                             onChange={handleChange}
                             placeholder="Email"
-                            className="w-full p-2 border border-gray-300 rounded-md mb-4"
+                            className="w-full p-2 border border-gray-300 rounded-md mb-4 text-black"
                         />
                         <input
                             type="text"
@@ -96,14 +105,14 @@ const SignInPage = () => {
                             value={formData.mobileNumber}
                             onChange={handleChange}
                             placeholder="Mobile Number"
-                            className="w-full p-2 border border-gray-300 rounded-md mb-4"
+                            className="w-full p-2 border border-gray-300 rounded-md mb-4 text-black"
                         />
                         <input
                             type="date"
                             name="birthDate"
                             value={formData.birthDate}
                             onChange={handleChange}
-                            className="w-full p-2 border border-gray-300 rounded-md mb-4"
+                            className="w-full p-2 border border-gray-300 rounded-md mb-4 text-black"
                         />
                     </>
                 )}
@@ -113,7 +122,7 @@ const SignInPage = () => {
                     value={formData.username}
                     onChange={handleChange}
                     placeholder="Username"
-                    className="w-full p-2 border border-gray-300 rounded-md mb-4"
+                    className="w-full p-2 border border-gray-300 rounded-md mb-4 text-black"
                 />
                 <input
                     type="password"
@@ -121,15 +130,15 @@ const SignInPage = () => {
                     value={formData.password}
                     onChange={handleChange}
                     placeholder="Password"
-                    className="w-full p-2 border border-gray-300 rounded-md mb-4"
+                    className="w-full p-2 border border-gray-300 rounded-md mb-4 text-black"
                 />
 
                 <button
                     type="submit"
                     className="bg-blue-500 text-white px-4 py-2 rounded-md w-full"
-                    disabled={false} // Change this to false since loading is removed
+                    disabled={isFetching}
                 >
-                    {isLogin ? 'Login' : 'Sign Up'}
+                    {isFetching ? 'Processing...' : isLogin ? 'Login' : 'Sign Up'}
                 </button>
 
                 {error && <p className="text-red-500 mt-2 text-center">{error}</p>}

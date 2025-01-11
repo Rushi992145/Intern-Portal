@@ -1,25 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import Navbar from '../components/Navbar';
+import  { useEffect, useState } from 'react';
 import SideBar from '../components/SideBar';
 import PostTemplate from '../components/PostTemplate';
 import Filter from '../components/Filter';
 import SearchBar from '../components/Searchbar';
 import axios from 'axios';
+import conf from '../conf/conf.js'
 
 const IntershipPage = () => {
     const [posts, setPosts] = useState([]);
 
     const loadPosts = async () => {
         try {
-            const token = localStorage.getItem('accessToken');
-            const response = await axios.get('http://localhost:9000/api/v2/post/internship', {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+            const response = await axios.get(`${conf.postApiUrl}internship`, {
             });
-            console.log("Post response:", response.data);
             
-            // Extract the posts from the response data
             const fetchedPosts = response.data.message.docs;
             setPosts(fetchedPosts); // Update state with the posts array
         } catch (error) {
@@ -38,7 +32,7 @@ const IntershipPage = () => {
     };
 
     return (
-        <div className='text-black h-screen flex flex-col'>
+        <div className='text-black h-screen flex flex-col dark:text-white dark:bg-slate-950'>
             <div className='flex flex-1 overflow-hidden'>
                 {!isSidebarOpen && (
                     <div className="md:hidden p-10">
@@ -87,15 +81,16 @@ const IntershipPage = () => {
                                     openings={post.openings || 'Not Specified'} // Add this if openings is part of the data
                                     applyBy={post.applyBy || 'Not Specified'} // Add this if applyBy is part of the data
                                     applyLink={post.applicationLink}
+                                    description={post.description}
                                     postedAgo={new Date(post.updatedAt).toLocaleDateString() || 'Not Specified'}
                                 />
                             ))}
                         </div>
                     </div>
 
-                    <div className="hidden md:block w-[25vw] p-4 border-l border-gray-200">
+                    {/* <div className="hidden md:block w-[25vw] p-4 border-l border-gray-200">
                         <Filter />
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </div>

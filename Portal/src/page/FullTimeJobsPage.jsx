@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios'; // Ensure axios is imported
-import Navbar from '../components/Navbar';
+import  { useState, useEffect } from 'react';
+import axios from 'axios'; 
 import SideBar from '../components/SideBar';
 import PostTemplate from '../components/PostTemplate';
 import Filter from '../components/Filter';
 import SearchBar from '../components/Searchbar';
+import conf from '../conf/conf.js';
 
 const FullTimeJobsPage = () => {
     const [posts, setPosts] = useState([]);
@@ -14,12 +14,11 @@ const FullTimeJobsPage = () => {
     const loadPosts = async () => {
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.get('http://localhost:9000/api/v2/post/fulltime', {
+            const response = await axios.get(`${conf.postApiUrl}fulltime`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            console.log("Post response:", response.data);
             
             // Extract the posts from the response data
             const fetchedPosts = response.data.message.docs;
@@ -39,7 +38,6 @@ const FullTimeJobsPage = () => {
 
     // Function to handle search input
     const handleSearch = (term) => {
-        console.log("Searching for:", term);
         // Add your search logic here
     };
 
@@ -93,15 +91,16 @@ const FullTimeJobsPage = () => {
                                     openings={post.openings || 'Not Specified'}
                                     applyBy={post.applyBy || 'Not Specified'}
                                     applyLink={post.applicationLink}
+                                    description={post.description}
                                     postedAgo={post.updatedAt ? new Date(post.updatedAt).toLocaleDateString() : 'Not Specified'}
                                 />
                             ))}
                         </div>
                     </div>
 
-                    <div className="hidden md:block w-[25vw] p-4 border-l border-gray-200">
+                    {/* <div className="hidden md:block w-[25vw] p-4 border-l border-gray-200">
                         <Filter />
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </div>

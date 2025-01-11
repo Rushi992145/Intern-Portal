@@ -1,10 +1,17 @@
-import React, { useEffect, useState } from "react";
-import profileImage from '../assets/profile.png';
-import background_img from '../assets/bg_img2.jpg';
+import profileImage from "../assets/profile.png";
+import background_img from "../assets/bg_img2.jpg";
 import SideBar from "../components/SideBar";
 import { useSelector, useDispatch } from "react-redux";
 import UserName from "../components/UserName";
-import { updateUser, addQualification } from "../redux/actions/authAction";
+import { useState ,useEffect} from "react";
+import {updateUser} from '../redux/user/userSlice'
+import { useNavigate } from "react-router-dom";
+import toast from 'react-hot-toast';
+import axios from "axios";
+import { MdDelete } from "react-icons/md";
+import conf from '../conf/conf.js'
+
+
 
 const animateSkillBars = () => {
   const bars = document.querySelectorAll(".skill-bar-fill");
@@ -16,97 +23,164 @@ const animateSkillBars = () => {
 
 const ProfilePage = () => {
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+  const { currentUser } = useSelector((state) => state.user);
+  console.log(currentUser)
+  
+  
 
   const [editMode, setEditMode] = useState(false);
-  const [editQualMode, seteditQualMode] = useState(false);
+  const [editQualMode, setEditQualMode] = useState(false);
 
   const [editedUser, setEditedUser] = useState({
-    username: user?.username || "",
-    email: user?.email || "",
-    fullname: user?.fullname || "",
+    username: currentUser?.data.data.user.username || "",
+    email: currentUser?.data.data.user.email || "",
+    fullname: currentUser?.data.data.user.fullname || "",
   });
 
-  const [addQuali, setAddQuali] = useState({
+  const [editedQuali, setEditedQuali] = useState({
     degree: "",
     startYear: "",
     endYear: "",
   });
 
   const [error, setError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [qualSuccessMessage, setQualSuccessMessage] = useState("");
   const currentYear = new Date().getFullYear();
-  console.log(currentYear)
+
 
   useEffect(() => {
-    if (user) {
+    if (currentUser) {
       setEditedUser({
-        username: user.username,
-        email: user.email,
-        fullname: user.fullname,
+        username: currentUser.data.data.user.username,
+        email: currentUser.data.data.user.email,
+        fullname: currentUser.data.data.user.fullname,
       });
     }
-  }, [user]);
+    animateSkillBars();
+  }, [currentUser,setEditedUser]);
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
-    setEditedUser((prev) => ({ ...prev, [name]: value }));
+    
+    if (editMode) {
+      setEditedUser((prev) => ({ ...prev, [name]: value }));
+    } else {
+      setEditedQuali((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem("accessToken");
-      await dispatch(updateUser(editedUser, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }));
-
-      setSuccessMessage("Profile updated successfully!");
-      setError(null);
-      setEditMode(false); // Close the edit mode
-
-      // Optional: Hide success message after 3 seconds
-      setTimeout(() => setSuccessMessage(""), 3000);
+      const token = currentUser?.data?.data?.accessToken;
+  
+      if (!token) {
+        throw new Error('User is not authenticated. Missing access token.');
+      }
+  
+      const response = await axios.patch(
+        `${conf.userApiUrl}update-account`,
+        editedUser,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      if (response.status === 200) {
+        toast.success('Successfully updated!');
+        toast.success('Successfully updated!');
+        // Update Redux state with changed fields only
+        dispatch(updateUser({
+          ...currentUser,
+          data: {
+            ...currentUser.data,
+            data: {
+              ...currentUser.data.data,
+              user: { ...currentUser.data.data.user, ...editedUser },
+            },
+          },
+        }));
+        setError(null);
+      } else {
+        toast.error('Unsuccessful attempt');
+      }
     } catch (error) {
+      if (error.response) {
+        toast.error(error.response.data.message || 'Failed profile update.');
+      } else if (error.request) {
+        toast.error('No response from server. Please try again later.');
+      } else {
+        toast.error('An unexpected error occurred.');
+      }
       setError(error.message);
+    } finally {
+      setEditMode(false);
     }
   };
   
-  
-
-  const handleQualAddSubmit = async (e) => {
+  const handleQualEditSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem("accessToken");
-      await dispatch(addQualification(addQuali, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }));
+      const token = currentUser?.data?.data?.accessToken;
 
-      setQualSuccessMessage("Qualification added successfully!");
+      if (!editedQuali.degree || !editedQuali.startYear || !editedQuali.endYear) {
+        toast.error('Incomplete Information')
+        return;
+      }
+  
+      if (!token) {
+        throw new Error('User is not authenticated. Missing access token.');
+      }
+
+      const response = await axios.post(
+        `${conf.userApiUrl}add-qualification`,
+        { qualification: editedQuali },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(response);
+      if (response.status === 200) {
+        toast.success("Successfully updated!");
+        
+        dispatch(updateUser({
+          ...currentUser,
+          data: {
+            ...currentUser.data,
+            data: {
+              ...currentUser.data.data,
+              user: {
+                ...currentUser.data.data.user,
+                qualifications: [...currentUser.data.data.user.qualifications, editedQuali],
+              },
+            },
+          },
+        }));
+      
+        setError(null);
+        setEditedQuali({ degree: "", startYear: "", endYear: "" });
+      }
+      
+      else {
+        toast.error('Unsuccessfull attempt');
+      }
       setError(null);
-      setAddQuali({ degree: "", startYear: "", endYear: "" });
-      seteditQualMode(false); 
-
-      setTimeout(() => setQualSuccessMessage(""), 3000);
     } catch (error) {
       setError(error.message);
     }
-  };
-
-  const handleAddQualiChange = (e) => {
-    const { name, value } = e.target;
-    setAddQuali((prev) => ({ ...prev, [name]: value }));
+    setEditQualMode(false);
   };
 
   return (
-    <div className="text-black h-[120vh] flex flex-col bg-gray-50">
+    <div className="text-black dark:text-white h-screen flex flex-col bg-gray-50 dark:bg-slate-900">
       <div className="flex flex-1">
-        <div className="w-[20vw] border-r border-gray-200">
+        <div className="w-[20vw] border-r border-gray-200 dark:border-gray-700">
           <SideBar />
         </div>
         <div className="w-[80vw] mx-auto py-8 px-4">
@@ -118,24 +192,27 @@ const ProfilePage = () => {
           >
             <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
               <img
-                src={user?.profileImage || profileImage}
+                src={currentUser?.profileImage || profileImage}
                 alt="Profile"
                 className="w-36 h-36 rounded-full"
               />
             </div>
           </div>
 
-          <div className="bg-white p-8 shadow-lg rounded-lg mb-12 border border-gray-200">
+          <div className="bg-white dark:bg-slate-600 dark:border-gray-700  p-8 shadow-lg rounded-lg mb-12 border border-gray-200">
             <div className="text-center">
-              <h2 className="text-4xl font-bold text-gray-900 animate-fade-in">
+              <h2 className="text-4xl font-bold text-gray-900 dark:text-white animate-fade-in">
                 {editedUser.username}
               </h2>
             </div>
           </div>
 
-          <div className="bg-white p-8 shadow-md rounded-lg mb-12 border border-gray-200">
+          {/* Personal Information */}
+          <div className="bg-white dark:bg-slate-600 dark:border-gray-700 text-gray-900 dark:text-white p-8 shadow-lg rounded-lg mb-12 border border-gray-200">
             <div className="flex justify-between items-center mb-4">
-              <h4 className="text-xl font-semibold text-gray-700">Personal Information</h4>
+              <h4 className="text-xl font-semibold ">
+                Personal Information
+              </h4>
               <button
                 className="text-blue-500 hover:underline text-sm"
                 onClick={() => setEditMode(true)}
@@ -144,8 +221,8 @@ const ProfilePage = () => {
               </button>
             </div>
 
-            {editMode && (
-              <form onSubmit={handleEditSubmit} className="mb-4">
+            {editMode ? (
+              <form onSubmit={handleEditSubmit}>
                 <div className="flex flex-col">
                   <input
                     type="text"
@@ -171,7 +248,10 @@ const ProfilePage = () => {
                     className="border border-gray-300 p-2 mb-2"
                     placeholder="Email Address"
                   />
-                  <button type="submit" className="bg-blue-500 text-white p-2 rounded">
+                  <button
+                    type="submit"
+                    className="bg-blue-500 text-white p-2 rounded"
+                  >
                     Save
                   </button>
                   <button
@@ -183,13 +263,8 @@ const ProfilePage = () => {
                   </button>
                 </div>
               </form>
-            )}
-
-            {error && <p className="text-red-500">{error}</p>}
-            {successMessage && <p className="text-green-500">{successMessage}</p>}
-
-            {!editMode && (
-              <div className="grid grid-cols-2 gap-6 text-gray-600">
+            ) : (
+              <div className="grid grid-cols-2 gap-6 ">
                 <UserName user={editedUser} />
                 <div>
                   <p className="font-semibold">Username</p>
@@ -201,20 +276,73 @@ const ProfilePage = () => {
                 </div>
               </div>
             )}
+
+            {error && <p className="text-red-500">{error}</p>}
           </div>
 
-          <div className="bg-white p-8 shadow-md rounded-lg mb-12 border border-gray-200">
+          {/* Qualification Section */}
+          <div className="bg-white text-gray-700 dark:text-white dark:bg-slate-600 dark:border-gray-700 p-8 shadow-md rounded-lg border border-gray-200">
             <div className="flex justify-between items-center mb-4">
-              <h4 className="text-xl font-semibold text-gray-700">Qualification</h4>
-              <button onClick={() => seteditQualMode(true)} className="text-blue-500 hover:underline text-sm">Add</button>
+              <h4 className="text-xl font-semibold ">
+                Qualifications
+              </h4>
+              <button
+                onClick={() => setEditQualMode(true)}
+                className="text-blue-500 hover:underline text-sm"
+              >
+                Add
+              </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-6 text-gray-600">
-              {user.qualifications.map((qualification, index) => (
+            {editQualMode ? (
+              <form onSubmit={handleQualEditSubmit}>
+                <div className="flex flex-col">
+                  <input
+                    type="text"
+                    name="degree"
+                    value={editedQuali.degree}
+                    onChange={handleEditChange}
+                    className="border border-gray-300 p-2 mb-2"
+                    placeholder="Degree"
+                  />
+                  <input
+                    type="text"
+                    name="startYear"
+                    value={editedQuali.startYear}
+                    onChange={handleEditChange}
+                    className="border border-gray-300 p-2 mb-2"
+                    placeholder="Start Year"
+                  />
+                  <input
+                    type="text"
+                    name="endYear"
+                    value={editedQuali.endYear}
+                    onChange={handleEditChange}
+                    className="border border-gray-300 p-2 mb-2"
+                    placeholder="End Year"
+                  />
+                  <button
+                    type="submit"
+                    className="bg-blue-500 text-white p-2 rounded"
+                  >
+                    Save
+                  </button>
+                  <button
+                    type="button"
+                    className="text-red-500 hover:underline p-2"
+                    onClick={() => setEditQualMode(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="text-gray-600 dark:text-white">
+                {currentUser.data.data.user.qualifications.map((qualification, index) => (
                 <div key={index} className="flex items-center justify-between border-b border-gray-300 py-4">
                   <div className="flex flex-col">
                     <p className="font-semibold text-lg">{qualification.degree}</p>
-                    <p className="text-gray-500 text-sm">{qualification.startYear} - {qualification.endYear}</p>
+                    <p className="text-gray-500 dark:text-gray-300 text-sm">{qualification.startYear} - {qualification.endYear}</p>
                   </div>
                   <div className="flex items-center">
                     {qualification.endYear < currentYear ?(<span className="bg-blue-500 text-white text-xs font-semibold px-2 py-1 rounded-full mr-2">
@@ -223,53 +351,12 @@ const ProfilePage = () => {
                       Not Completed
                     </span>)
                     }
+                    <button className=" hover:scale-125"><MdDelete /></button>
                   </div>
                 </div>
 
               ))}
-            </div>
-
-            {qualSuccessMessage && <p className="text-green-500">{qualSuccessMessage}</p>}
-
-            {editQualMode && (
-              <form onSubmit={handleQualAddSubmit} className="mb-4">
-                <div className="flex flex-col">
-                  <input
-                    type="text"
-                    name="degree"
-                    value={addQuali.degree}
-                    onChange={handleAddQualiChange}
-                    className="border border-gray-300 p-2 mb-2"
-                    placeholder="Degree"
-                  />
-                  <input
-                    type="text"
-                    name="startYear"
-                    value={addQuali.startYear}
-                    onChange={handleAddQualiChange}
-                    className="border border-gray-300 p-2 mb-2"
-                    placeholder="Start Year"
-                  />
-                  <input
-                    type="text"
-                    name="endYear"
-                    value={addQuali.endYear}
-                    onChange={handleAddQualiChange}
-                    className="border border-gray-300 p-2 mb-2"
-                    placeholder="End Year"
-                  />
-                  <button type="submit" className="bg-blue-500 text-white p-2 rounded">
-                    Add Qualification
-                  </button>
-                  <button
-                    type="button"
-                    className="text-red-500 hover:underline p-2"
-                    onClick={() => seteditQualMode(false)}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
+              </div>
             )}
           </div>
         </div>
