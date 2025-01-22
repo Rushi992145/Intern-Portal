@@ -1,4 +1,4 @@
-# 🌐 Internet Portal Project
+#  InternNet Portal Project
 
 A modern full-stack internet portal designed for secure and efficient user management, leveraging cutting-edge technologies like JWT for authentication and bcrypt for password hashing.
 
