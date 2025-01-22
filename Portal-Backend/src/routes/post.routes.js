@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { varifyJWT } from "../middlewares/auth.middleware.js";
-import {getPostByIds,createPost,getAllPosts,getAllPostsbyFilter,getMyAppliedJobs,getPostAddedByLoggedUser,updatePost,getAllPostOfInternship,getAllPostOfFulltime} from "../controllers/post.controller.js"
+import {getPostByIds,createPost,getAllPosts,getAllPostsbyFilter,getMyAppliedJobs,getPostAddedByLoggedUser,updatePost,getAllPostOfInternship,getAllPostOfFulltime,deletePost} from "../controllers/post.controller.js"
 
 const router = Router();
 
@@ -12,6 +12,7 @@ router.route("/filter").get(getAllPostsbyFilter);
 router.route("/internship").get(getAllPostOfInternship);
 router.route("/fulltime").get(getAllPostOfFulltime);
 router.route("/get-applied-jobs").get(varifyJWT,getAllPostOfFulltime);
-router.route("/get-myapplied").get(varifyJWT,getMyAppliedJobs);
+router.route("/get-myapplied").get(varifyJWT,getMyAppliedJobs); 
+router.route("/delete-post/:id").delete(varifyJWT, deletePost);
 
 export default router;

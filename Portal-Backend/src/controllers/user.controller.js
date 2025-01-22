@@ -280,8 +280,14 @@ const updateUserProfileImage = asyncHandler(async(res,req) => {
 const addQualification = asyncHandler(async (req, res) => {
     const { qualification } = req.body;
 
+    console.log("Rushi",qualification)
+
     if (!qualification || !qualification.degree || !qualification.startYear || !qualification.endYear) {
         return res.status(400).json({ message: 'All fields are required for qualification' });
+    }
+
+    if (qualification.startYear > qualification.endYear) {
+        return res.status(400).json({ message: 'Start year cannot be greater than end year' });
     }
 
     try {
@@ -290,6 +296,19 @@ const addQualification = asyncHandler(async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
+        // Check if qualification already exists or overlaps with the same degree
+        const doesExist = user.qualifications.some(q => 
+            q.degree === qualification.degree && 
+            (
+                (q.startYear <= qualification.endYear && q.endYear >= qualification.startYear)
+            )
+        );
+
+        if (doesExist) {
+            return res.status(201).json({ message: 'Qualification already exists or overlaps in the year range' });
+        }
+
+        // Add new qualification
         user.qualifications.push(qualification);
 
         await user.save();
@@ -297,6 +316,48 @@ const addQualification = asyncHandler(async (req, res) => {
         return res.status(200).json({ message: 'Qualification added successfully', user });
     } catch (error) {
         return res.status(500).json({ message: 'An error occurred while adding qualification', error });
+    }
+});
+
+const removeQualification = asyncHandler(async (req, res) => {
+    const { degree, startYear, endYear } = req.body;
+    console.log(req.body);
+    
+
+    if (!degree || !startYear || !endYear) {
+        return res.status(400).json({ message: 'Degree, start year, and end year are required' });
+    }
+
+    try {
+        const user = await User.findById(req.user?._id).select("-password -refreshToken");
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Find the index of the qualification to remove
+        const qualificationIndex = user.qualifications.findIndex(
+            (qualification) =>
+                qualification.degree === degree &&
+                qualification.startYear === startYear &&
+                qualification.endYear === endYear
+        );
+
+        if (qualificationIndex === -1) {
+            return res.status(404).json({ message: 'Qualification not found' });
+        }
+
+        // Remove the qualification from the qualifications array
+        user.qualifications.splice(qualificationIndex, 1);
+
+        // Save the updated user document
+        await user.save();
+
+        // Return the updated user with qualifications removed
+        return res.status(200).json({ message: 'Qualification removed successfully', user });
+    } catch (error) {
+        console.error("Error removing qualification:", error);
+        return res.status(500).json({ message: 'An error occurred while removing the qualification', error: error.message });
     }
 });
 
@@ -358,7 +419,6 @@ const addMyAppliedJobs = asyncHandler(async (req, res) => {
     }
 });
 
-
 const removeMyAppliedJob = asyncHandler(async (req, res) => {
     const { jobId } = req.body;
 
@@ -403,7 +463,8 @@ export {
     updateAccountDetails,
     updateUserProfileImage,
     addQualification,
+    removeQualification,
     getMyAppliedJobs,
     addMyAppliedJobs,
-    removeMyAppliedJob
+    removeMyAppliedJob,
 }

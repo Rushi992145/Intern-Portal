@@ -272,5 +272,40 @@ const getPostByIds = asyncHandler(async (req, res) => {
     }
 });
 
+const deletePost = asyncHandler(async (req, res) => {
+    const { id } = req.params;
 
-export { createPost, getAllPosts , getAllPostsbyFilter, getMyAppliedJobs , getPostAddedByLoggedUser,updatePost,getAllPostOfInternship,getAllPostOfFulltime,getPostByIds};
+    // Validate the 'id' format (MongoDB ObjectId)
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json(new ApiResponse(400, "Invalid post ID format.", null));
+    }
+
+    try {
+        // Check if the post exists
+        const post = await Post.findById(id);
+        if (!post) {
+            throw new ApiError(404, "Post not found.");
+        }
+
+        // Check if the logged-in user is the owner of the post
+        if (!post.owner.equals(req.user._id)) {
+            throw new ApiError(403, "You are not authorized to delete this post.");
+        }
+
+        // Delete the post using deleteOne
+        await Post.deleteOne({ _id: id });
+
+        return res.status(200).json(new ApiResponse(200, "Post deleted successfully", null));
+
+    } catch (error) {
+        console.error('Error deleting post:', error.message);
+        return res.status(500).json(new ApiResponse(500, 'An error occurred while deleting the post.', null));
+    }
+});
+
+
+
+
+
+
+export { createPost, getAllPosts , getAllPostsbyFilter, getMyAppliedJobs , getPostAddedByLoggedUser,updatePost,getAllPostOfInternship,getAllPostOfFulltime,getPostByIds,deletePost};
