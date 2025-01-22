@@ -7,37 +7,53 @@ import conf from '../conf/conf.js';
 const AppliedComponent = () => {
     const [isSelected, setIsSelected] = useState(true);
     const [appliedJobs, setAppliedJobs] = useState([]);
+    const [myPosts, setMyPosts] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // Access Redux state
     const { currentUser } = useSelector((state) => state.user);
     const myApplied = currentUser?.data.data.user.myApplied || [];
     const token = currentUser?.data.data.accessToken || "";
 
-    // Function to load applied jobs from the server
+    const handleDeletePost = async (postId) => {
+        if (window.confirm('Are you sure you want to delete this post?')) {
+            try {
+                console.log("Post ID to delete:", postId);
+    
+                const response = await axios.delete(`${conf.postApiUrl}delete-post/${postId}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+    
+                console.log("Response from API:", response);
+    
+                if (response.status === 200) {
+                    setMyPosts((prevPosts) => prevPosts.filter((post) => post._id !== postId));
+                    alert('Post deleted successfully.');
+                } else {
+                    alert('Failed to delete the post. Please try again later.');
+                }
+            } catch (error) {
+                console.error("Error deleting post:", error);
+                alert('An error occurred while deleting the post. Please try again later.');
+            }
+        }
+    };    
+    
+
     const loadAppliedJobs = async () => {
         try {
-            // Exit early if no applied jobs exist
+            setLoading(true);
+
             if (myApplied.length === 0) {
                 setAppliedJobs([]);
-                setLoading(false);
                 return;
             }
 
-            // Convert `myApplied` to a comma-separated string
             const appliedJobIdsString = myApplied.join(',');
-
-            // Make the GET request
             const response = await axios.get(`${conf.postApiUrl}get-myapplied`, {
-                params: {
-                    appliedJobIds: appliedJobIdsString, // Add appliedJobIds to query string
-                },
-                headers: {
-                    Authorization: `Bearer ${token}`, // Include the token in headers
-                },
+                params: { appliedJobIds: appliedJobIdsString },
+                headers: { Authorization: `Bearer ${token}` },
             });
 
-            // Set the applied jobs state            
             setAppliedJobs(response.data.jobs || []);
         } catch (error) {
             console.error('Error fetching applied jobs:', error.message || error.response?.data);
@@ -46,57 +62,62 @@ const AppliedComponent = () => {
         }
     };
 
-    // Function to handle "Check" button clicks
-    const handleApplyClick = (applyLink) => {
-        if (!applyLink) {
-            alert('Application link is not available for this job.');
-            return;
+    const loadMyPosts = async () => {
+        try {
+            setLoading(true);
+
+            const response = await axios.get(`${conf.postApiUrl}my-posts`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            console.log("Rushi",response.data);
+            
+
+            setMyPosts(response.data.data || []);
+        } catch (error) {
+            console.error('Error fetching jobs posted by logged-in user:', error.message || error.response?.data);
+        } finally {
+            setLoading(false);
         }
-        // Redirect to the application link
-        window.location.href = applyLink;
     };
 
-    // Load applied jobs on component mount or whenever `myApplied` changes
     useEffect(() => {
-        loadAppliedJobs();
-    }, [myApplied]);
+        if (isSelected) {
+            loadAppliedJobs();
+        } else {
+            loadMyPosts();
+        }
+    }, [isSelected, myApplied]);
 
     return (
-        <div className=' dark:text-white'>
-            {/* Header Section */}
-            <div>
-                <div className="flex items-center gap-3">
-                    <div
-                        onClick={() => setIsSelected(true)}
-                        className={`text-xl font-bold cursor-pointer hover:shadow-lg ${
-                            isSelected && 'text-blue-600 underline'
-                        }`}
-                    >
-                        My Applied
-                    </div>
-                    <div className="border-2 h-6 mx-2"></div>
-                    <div
-                        onClick={() => setIsSelected(false)}
-                        className={`text-xl font-bold cursor-pointer hover:shadow-lg ${
-                            !isSelected && 'text-blue-600 underline'
-                        }`}
-                    >
-                        My Posts
-                    </div>
+        <div className='dark:text-white'>
+            <div className="flex items-center gap-3">
+                <div
+                    onClick={() => setIsSelected(true)}
+                    className={`text-xl font-bold cursor-pointer hover:shadow-lg ${
+                        isSelected ? 'text-blue-600 underline' : ''
+                    }`}
+                >
+                    My Applied
                 </div>
-                <p className="pt-5">
-                    Once the internship is closed, it will be removed after 90 days from this list
-                </p>
+                <div className="border-2 h-6 mx-2"></div>
+                <div
+                    onClick={() => setIsSelected(false)}
+                    className={`text-xl font-bold cursor-pointer hover:shadow-lg ${
+                        !isSelected ? 'text-blue-600 underline' : ''
+                    }`}
+                >
+                    My Posts
+                </div>
             </div>
+            <p className="pt-5">
+                Once the internship is closed, it will be removed after 90 days from this list.
+            </p>
 
-            {/* Content Section */}
             {loading ? (
-                // Loading Indicator
                 <div className="flex justify-center items-center pt-20">
                     <p>Loading...</p>
                 </div>
             ) : isSelected ? (
-                // "My Applied" Tab Content
                 appliedJobs.length > 0 ? (
                     <div className="pt-10 dark:text-white">
                         <h2 className="font-bold text-2xl mb-4">My Applied Jobs</h2>
@@ -111,7 +132,11 @@ const AppliedComponent = () => {
                                         <div className="text-gray-500">{job.role}</div>
                                     </li>
                                     <button
-                                        onClick={() => handleApplyClick(job.applicationLink)} // Fixed function invocation
+                                        onClick={() =>
+                                            job.applicationLink
+                                                ? window.location.href = job.applicationLink
+                                                : alert('Application link is not available for this job.')
+                                        }
                                         className="bg-blue-500 text-white py-1 px-2 rounded ml-auto"
                                     >
                                         Check
@@ -121,7 +146,6 @@ const AppliedComponent = () => {
                         </ul>
                     </div>
                 ) : (
-                    // No Applied Jobs Found
                     <div className="flex justify-center items-center gap-10 flex-col pt-36">
                         <p className="font-bold text-xl">No Applied Internships</p>
                         <p>You have not applied to any internship yet.</p>
@@ -132,14 +156,38 @@ const AppliedComponent = () => {
                         </Link>
                     </div>
                 )
+            ) : myPosts.length > 0 ? (
+                <div className="pt-10 dark:text-white">
+                    <h2 className="font-bold text-2xl mb-4">My Posts</h2>
+                    <ul>
+                        {myPosts.map((post) => (
+                            <div
+                                key={post._id}
+                                className="mb-4 border-b pb-2 flex items-center justify-between"
+                            >
+                                <div>
+                                    <div className="font-semibold">{post.companyName}</div>
+                                    <div className="text-gray-500">{post.role}</div>
+                                </div>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => handleDeletePost(post._id)}
+                                        className="bg-red-500 text-white py-1 px-2 rounded"
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </ul>
+                </div>
             ) : (
-                // "My Posts" Tab Content
                 <div className="flex justify-center items-center gap-10 flex-col pt-36">
                     <p className="font-bold text-xl">No Posts</p>
                     <p>You have not posted any job yet.</p>
                     <Link to="/fulltime-jobs">
                         <button className="bg-blue-600 text-white p-3 rounded-md w-40">
-                            Search Job
+                            Post a Job
                         </button>
                     </Link>
                 </div>

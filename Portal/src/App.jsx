@@ -10,6 +10,7 @@ import AppliedComponent from "./components/AppliedComponent";
 import SignInPage from "./page/SignInPage";
 import Navbar from "./components/Navbar";
 import { Toaster } from "react-hot-toast";
+import Footer from "./components/Footer";
 
 function App() {
 

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateUser } from '../redux/user/userSlice';
 import conf from '../conf/conf.js';
+import toast from 'react-hot-toast'
 
 const PostTemplate = ({
     keyProp,
@@ -68,6 +69,7 @@ const PostTemplate = ({
                 );
 
                 setIsBookmarked(false);
+                toast.success('Unsaved')
             } else {
                 const response = await axios.post(
                     `${conf.userApiUrl}apply-job`,
@@ -98,6 +100,7 @@ const PostTemplate = ({
                 );
 
                 setIsBookmarked(true);
+                toast.success('Saved')
             }
         } catch (error) {
             console.error('Error while updating bookmark status:', error.response?.data || error.message);
@@ -112,6 +115,11 @@ const PostTemplate = ({
         }
         window.location.href = applyLink;
     };
+
+    const handleShareClick = () => {
+        navigator.clipboard.writeText(applyLink);
+        toast.success('Copied to clipboard!')
+    }
 
     return (
         <div className="p-4 flex justify-center">
@@ -145,7 +153,9 @@ const PostTemplate = ({
                         >
                             bookmark
                         </span>
-                        <span className="material-symbols-outlined w-9 h-9 flex items-center justify-center hover:bg-blue-200 rounded-full">
+                        <span className="material-symbols-outlined w-9 h-9 flex items-center justify-center hover:bg-blue-200 rounded-full"
+                            onClick={handleShareClick}
+                        >
                             share
                         </span>
                     </div>

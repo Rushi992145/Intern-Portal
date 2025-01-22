@@ -10,7 +10,8 @@ const Navbar = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const theme = useSelector((state) => state.theme.theme);
-    const user = useSelector((state) => state.user?.currentUser);
+    const { currentUser } = useSelector((state) => state.user);
+    
 
     const handleLogout = async () => {
         try {
@@ -43,16 +44,16 @@ const Navbar = () => {
                 </Button>
 
                 <img
-                    src={user?.profileImage || profileImage}
+                    src={currentUser?.profileImage || profileImage}
                     alt="Profile"
                     className='w-7 h-7 rounded-full'
                 />
 
-                <Link to={user ? '/profile' : '/signin'} className='text-blue-500 dark:text-blue-400'>
-                    <span className='font-medium'>{user?.username || 'Guest'}</span>
+                <Link to={currentUser ? '/profile' : '/signin'} className='text-blue-500 dark:text-blue-400'>
+                    <span className='font-medium'>{currentUser?.data?.data?.user.username || 'Guest'}</span>
                 </Link>
 
-                {user ? (
+                {currentUser ? (
                     <button onClick={handleLogout} className='text-red-500 dark:text-red-400'>
                         Logout
                     </button>

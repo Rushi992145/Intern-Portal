@@ -1,6 +1,7 @@
 import  { useState } from 'react';
 import axios from 'axios';
 import conf from '../conf/conf.js';
+import { useSelector } from 'react-redux';
 
 const PostForm = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -14,6 +15,7 @@ const PostForm = () => {
         salary: '',
         duration: '',
     });
+    const { currentUser } = useSelector((state) => state.user);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -56,9 +58,8 @@ const PostForm = () => {
     };
 
     const handleSubmit = async () => {
-        console.log(localStorage);
         try {
-            const token = localStorage.getItem('accessToken');
+            const token = currentUser?.data?.data?.accessToken;
             const response = await axios.post(
                 `${conf.postApiUrl}create-post`, 
                 formData,

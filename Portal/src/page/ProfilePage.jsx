@@ -25,7 +25,7 @@ const ProfilePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { currentUser } = useSelector((state) => state.user);
-  console.log(currentUser)
+  // console.log(currentUser)
   
   
 
@@ -145,7 +145,7 @@ const ProfilePage = () => {
           },
         }
       );
-      console.log(response);
+
       if (response.status === 200) {
         toast.success("Successfully updated!");
         
@@ -162,20 +162,80 @@ const ProfilePage = () => {
             },
           },
         }));
-      
+
         setError(null);
         setEditedQuali({ degree: "", startYear: "", endYear: "" });
       }
       
       else {
         toast.error('Unsuccessfull attempt');
+        toast(
+          `${response.data.message}`,
+          {
+            duration: 6000,
+          }
+        );
       }
       setError(null);
     } catch (error) {
       setError(error.message);
+      console.log(error.message)
     }
     setEditQualMode(false);
   };
+
+  const handleRemoveQualification = async (degree, startYear, endYear) => {
+    try {
+      const token = currentUser?.data?.data?.accessToken;
+  
+      if (!token) {
+        throw new Error('User is not authenticated. Missing access token.');
+      }
+  
+      // Send a request to delete the qualification from the database by degree, startYear, and endYear
+      const response = await axios.delete(
+        `${conf.userApiUrl}remove-qualification`,
+        {
+          data: { degree, startYear, endYear },
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      if (response.status === 200) {
+        toast.success("Qualification removed successfully!");
+        
+        // Update Redux state by filtering out the deleted qualification
+        const updatedQualifications = currentUser.data.data.user.qualifications.filter(
+          qualification =>
+            !(qualification.degree === degree && 
+              qualification.startYear === startYear && 
+              qualification.endYear === endYear)
+        );
+  
+        dispatch(updateUser({
+          ...currentUser,
+          data: {
+            ...currentUser.data,
+            data: {
+              ...currentUser.data.data,
+              user: {
+                ...currentUser.data.data.user,
+                qualifications: updatedQualifications,
+              },
+            },
+          },
+        }));
+      } else {
+        toast.error('Error removing qualification');
+      }
+    } catch (error) {
+      toast.error(error.message || 'An error occurred while removing qualification');
+    }
+  };
+  
 
   return (
     <div className="text-black dark:text-white h-screen flex flex-col bg-gray-50 dark:bg-slate-900">
@@ -339,23 +399,31 @@ const ProfilePage = () => {
             ) : (
               <div className="text-gray-600 dark:text-white">
                 {currentUser.data.data.user.qualifications.map((qualification, index) => (
-                <div key={index} className="flex items-center justify-between border-b border-gray-300 py-4">
-                  <div className="flex flex-col">
-                    <p className="font-semibold text-lg">{qualification.degree}</p>
-                    <p className="text-gray-500 dark:text-gray-300 text-sm">{qualification.startYear} - {qualification.endYear}</p>
+                  <div key={index} className="flex items-center justify-between border-b border-gray-300 py-4">
+                    <div className="flex flex-col">
+                      <p className="font-semibold text-lg">{qualification.degree}</p>
+                      <p className="text-gray-500 dark:text-gray-300 text-sm">{qualification.startYear} - {qualification.endYear}</p>
+                    </div>
+                    <div className="flex items-center">
+                      {qualification.endYear < currentYear ? (
+                        <span className="bg-blue-500 text-white text-xs font-semibold px-2 py-1 rounded-full mr-2">
+                          Completed
+                        </span>
+                      ) : (
+                        <span className="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full mr-2">
+                          Not Completed
+                        </span>
+                      )}
+                      <button
+                        className="hover:scale-125"
+                        onClick={() => handleRemoveQualification(qualification.degree, qualification.startYear, qualification.endYear)}
+                      >
+                        <MdDelete />
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex items-center">
-                    {qualification.endYear < currentYear ?(<span className="bg-blue-500 text-white text-xs font-semibold px-2 py-1 rounded-full mr-2">
-                      Completed
-                    </span>):(<span className="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full mr-2">
-                      Not Completed
-                    </span>)
-                    }
-                    <button className=" hover:scale-125"><MdDelete /></button>
-                  </div>
-                </div>
+                ))}
 
-              ))}
               </div>
             )}
           </div>
