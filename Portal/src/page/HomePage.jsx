@@ -9,7 +9,7 @@ const HomePage = () => {
 
 
   return (
-    <div className="text-black h-screen flex flex-col">
+    <div className="text-black h-screen flex flex-col dark:text-white">
 
       <div className="flex flex-1 overflow-hidden relative ">
         

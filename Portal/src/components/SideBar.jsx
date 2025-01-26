@@ -5,7 +5,7 @@ const SideBar = () => {
     const activeClass = 'bg-slate-100 text-blue-600';
 
     return (
-        <div className='flex w-full flex-col gap-2 py-14'>
+        <div className='flex w-full flex-col h-full gap-2 py-14 dark:bg-slate-950 dark:text-white'>
             <NavLink
                 to="/home"
                 className={({ isActive }) =>
@@ -51,7 +51,7 @@ const SideBar = () => {
                 <span className="material-symbols-outlined w-6 text-center">
                     description
                 </span>
-                <span>Applied</span>
+                <span>My Activity</span>
             </NavLink>
         </div>
     );

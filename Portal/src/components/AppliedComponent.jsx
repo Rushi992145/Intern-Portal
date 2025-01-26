@@ -120,7 +120,6 @@ const AppliedComponent = () => {
             ) : isSelected ? (
                 appliedJobs.length > 0 ? (
                     <div className="pt-10 dark:text-white">
-                        <h2 className="font-bold text-2xl mb-4">My Applied Jobs</h2>
                         <ul>
                             {appliedJobs.map((job) => (
                                 <div

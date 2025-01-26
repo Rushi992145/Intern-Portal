@@ -13,11 +13,7 @@ const FullTimeJobsPage = () => {
     // Function to load posts from the server
     const loadPosts = async () => {
         try {
-            const token = localStorage.getItem('accessToken');
             const response = await axios.get(`${conf.postApiUrl}fulltime`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
             });
             
             // Extract the posts from the response data
@@ -42,35 +38,37 @@ const FullTimeJobsPage = () => {
     };
 
     return (
-        <div className='text-black h-screen flex flex-col'>
-            <div className='flex flex-1 overflow-hidden'>
+        <div className="text-black h-screen flex flex-col dark:text-white dark:bg-slate-950">
+            {/* Navbar */}
+            <div className="flex items-center justify-between px-4 bg-white border-b border-gray-200 dark:bg-slate-800">
                 {!isSidebarOpen && (
-                    <div className="md:hidden p-10">
-                        <button
-                            className="absolute top-4 left-4 p-2 text-blue-500"
-                            onClick={() => setIsSidebarOpen(true)}
-                        >
-                            <span className="material-symbols-outlined">menu</span>
-                        </button>
-                    </div>
+                    <button
+                        className="p-2 text-blue-500 md:hidden"
+                        onClick={() => setIsSidebarOpen(true)}
+                    >
+                        <span className="material-symbols-outlined">menu</span>
+                    </button>
                 )}
+                <h1 className="text-xl font-semibold md:hidden">Full-Time</h1>
+            </div>
 
+            <div className="flex flex-1 overflow-hidden">
+                {/* Sidebar */}
                 <div
-                    className={`fixed inset-y-0 left-0 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out 
+                    className={`fixed inset-y-0 left-0 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out z-40
                       ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
                       md:relative md:translate-x-0 md:w-[20vw]`}
                 >
-                    {isSidebarOpen && (
-                        <button
-                            className="absolute top-4 right-4 md:hidden p-2 text-blue-500"
-                            onClick={() => setIsSidebarOpen(false)}
-                        >
-                            <span className="material-symbols-outlined">close</span>
-                        </button>
-                    )}
+                    <button
+                        className="absolute top-4 right-4 md:hidden p-2 text-blue-500"
+                        onClick={() => setIsSidebarOpen(false)}
+                    >
+                        <span className="material-symbols-outlined">close</span>
+                    </button>
                     <SideBar />
                 </div>
 
+                {/* Main Content */}
                 <div className="flex-1 flex overflow-hidden">
                     <div className="flex-1 p-4 overflow-y-auto">
                         <SearchBar onSearch={handleSearch} />
@@ -98,6 +96,7 @@ const FullTimeJobsPage = () => {
                         </div>
                     </div>
 
+                    {/* Optional Filter Section for larger screens */}
                     {/* <div className="hidden md:block w-[25vw] p-4 border-l border-gray-200">
                         <Filter />
                     </div> */}

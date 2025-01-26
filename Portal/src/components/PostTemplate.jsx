@@ -128,7 +128,7 @@ const PostTemplate = ({
                     <div className="logo">
                         <img
                             className="w-12 h-12 rounded-full"
-                            src={logoSrc}
+                            src='/letter-n.png'
                             alt="Company Logo"
                             onError={(e) => {
                                 e.target.src = './src/assets/defaultlogo.png';

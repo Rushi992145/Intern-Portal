@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 import axios from "axios";
 import { MdDelete } from "react-icons/md";
 import conf from '../conf/conf.js'
+import { MdMenu, MdClose } from "react-icons/md";
 
 
 
@@ -24,8 +25,13 @@ const animateSkillBars = () => {
 const ProfilePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const handleToggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
   const { currentUser } = useSelector((state) => state.user);
   // console.log(currentUser)
+  
   
   
 
@@ -239,8 +245,22 @@ const ProfilePage = () => {
 
   return (
     <div className="text-black dark:text-white h-screen flex flex-col bg-gray-50 dark:bg-slate-900">
+      <div className="lg:hidden p-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-700">
+        <button
+          className="text-2xl"
+          onClick={handleToggleSidebar}
+          aria-label="Toggle Sidebar"
+        >
+          {isSidebarOpen ? <MdClose /> : <MdMenu />}
+        </button>
+        <h1 className="text-lg font-bold">Profile Page</h1>
+      </div>
       <div className="flex flex-1">
-        <div className="w-[20vw] border-r border-gray-200 dark:border-gray-700">
+      <div
+          className={`fixed lg:static z-40 bg-white dark:bg-slate-800 shadow-lg lg:shadow-none h-screen lg:h-auto lg:flex w-[60vw] sm:w-[40vw] lg:w-[20vw] border-r border-gray-200 dark:border-gray-700 transition-transform ${
+            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } lg:translate-x-0`}
+        >
           <SideBar />
         </div>
         <div className="w-[80vw] mx-auto py-8 px-4">
