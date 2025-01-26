@@ -23,6 +23,8 @@ import postRouter from "./routes/post.routes.js"
 //routes declaration
 app.use("/api/v2/users",userRouter)
 app.use("/api/v2/post",postRouter)
-
+app.get('/api/health', (req, res) => {
+    res.status(200).json({ message: "Service is healthy!" });
+});
 
 export {app};
